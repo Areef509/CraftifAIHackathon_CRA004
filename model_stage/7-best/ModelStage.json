@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "steps": {
+    "visualize": {
+      "step": "visualize",
+      "status": "ok",
+      "summary": "254 graph nodes \u00b7 0 unresolved TensorRT node(s)",
+      "detail": "",
+      "data": {
+        "_data_file": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/visualize.data.json"
+      },
+      "warnings": [],
+      "artifacts": {},
+      "recorded_at": 1792436581.6712997
+    },
+    "compile": {
+      "step": "compile",
+      "status": "warning",
+      "summary": "FP32 engine built in 8.2s \u2014 199 TRT layers, 18.6 MB.",
+      "detail": "**best.onnx \u2192 best.fp32.plan**  \u00b7  TensorRT 10.3.0\n\nThe engine is on disk and this is the file that gets deployed. Nothing has been run yet, so none of this is a speed measurement \u2014 the build time above is how long it took to CREATE, not how fast it goes.\n\n**Built at FP32, and every layer stayed there.** Nothing fell back.\n\n**Layout conversion \u2014 21% of layers**\n\n41 of 199 layers do no maths. They only rearrange data so the next layer can read it.\n\nAround 8% is normal at FP32. What this number is really for is comparing two builds of the SAME model: a jump after a precision change is the cost of extra shuffling, not a worse choice of kernel. At 21% a large share of this engine is moving data rather than computing \u2014 worth comparing against another precision before concluding the model is simply expensive.\n\n**What the engine is made of**\n\n| Kind | Count | What it does |\n|---|---:|---|\n| CaskConvolution | 70 | convolutions |\n| PointWiseV2 | 69 | elementwise maths, fused |\n| Reformat | 41 | layout/precision conversion \u2014 overhead, not maths |\n| NoOp | 8 | removed entirely |\n| Constant | 3 | \u2014 |\n| CaskPooling | 3 | \u2014 |\n| Resize | 2 | resizing |\n| Shuffle | 2 | reshapes and transposes |\n| CaskSoftMaxV2 | 1 | \u2014 |\n\nThese are TensorRT's own kernel families, after it merged what it could \u2014 which is why the count does not match the ONNX node count.",
+      "data": {
+        "_data_file": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/compile.data.json"
+      },
+      "warnings": [
+        "First build on this GPU, so every kernel had to be timed (8s). The timings are now cached; rebuilding this model after surgery or quantization will be far quicker."
+      ],
+      "artifacts": {
+        "engine": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/best.fp32.plan"
+      },
+      "recorded_at": 1792436610.6989553
+    },
+    "engine": {
+      "step": "engine",
+      "status": "ok",
+      "summary": "FP32 engine: 6.184 ms/frame \u00b7 ~162 fps \u00b7 25.73 W",
+      "detail": "**best.fp32.plan** (TensorRT 10.3.0, FP32)\n\n| Measurement | Value | Source |\n|---|---:|---|\n| Frame time (end to end) | 6.184 ms | trtexec |\n| GPU compute only | 5.635 ms | trtexec |\n| Host\u2194device transfer | 0.548 ms | derived |\n| Summed layer time | 8.469 ms | /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/best.fp32.runtime.profile.json |\n| Profiling overhead | 1.50\u00d7 | summed layers \u00f7 GPU compute |\n| Throughput | ~162 fps | derived |\n| Power | 25.73 W | nvidia-smi |\n\n**Precision TensorRT actually chose**\n\n| Precision | Layers |\n|---|---:|\n| FP32 | 199 |\n\n**Selected tactics**\n\n| Tactic | Count |\n|---|---:|\n| 0x0000000000000009 | 69 |\n| 0x00000000000003e8 | 41 |\n| 0x94119b4c514b211a | 26 |\n| 0x0000000000000000 | 15 |\n| 0xe52b0ddb126aa135 | 8 |\n| 0xb2c8ebee321e63d6 | 7 |\n| 0xd1a22ad13e727070 | 6 |\n| 0x828d0ea88c66fce7 | 4 |\n| 0x9808072e706def96 | 4 |\n| 0xb59f9cfb90407c92 | 3 |\n| 0xa8609adc4e0ceb90 | 2 |\n| 0xe5603263b7f00303 | 2 |\n\nTactic/runtime/power values are separated by provenance; per-layer power is not claimed from whole-engine telemetry.\n\n---\n\n**best.onnx** on **Jetson Orin NX 16GB** (fp32, 15W)\n\n| Metric | Value |\n|---|---|\n| Latency / frame | 8.48 ms |\n| Throughput | ~118 fps |\n| Energy / frame | 55077.7 \u00b5J |\n| Operation power | 6.49 W |\n| Steady-state temperature rise | +9.74 \u00b0C |\n| Units profiled | 232 / 232 (100%) |\n\n**Time by family**\n\n| Family | ms | share |\n|---|---:|---:|\n| compute | 5.664 | 67% |\n| elementwise | 2.703 | 32% |\n| resize | 0.060 | 1% |\n| norm | 0.042 | 0% |\n| pool | 0.012 | 0% |\n\n**Hotspots**\n\n| Unit | Subgraph | Algorithm | ms | share | bound |\n|---|---|---|---:|---:|---|\n| `/model.22/cv2.0/cv2.0.0/conv/Conv` | conv_bias_act | direct | 0.378 | 4.5% | compute-bound |\n| `/model.22/cv2.0/cv2.0.1/conv/Conv` | conv_bias_act | direct | 0.378 | 4.5% | compute-bound |\n| `/model.1/conv/Conv` | conv_bias_act | direct | 0.189 | 2.2% | compute-bound |\n| `/model.3/conv/Conv` | conv_bias_act | direct | 0.189 | 2.2% | compute-bound |\n| `/model.5/conv/Conv` | conv_bias_act | direct | 0.189 | 2.2% | compute-bound |\n| `/model.7/conv/Conv` | conv_bias_act | direct | 0.189 | 2.2% | compute-bound |\n| `/model.22/cv2.1/cv2.1.0/conv/Conv` | conv_bias_act | direct | 0.189 | 2.2% | compute-bound |\n| `/model.0/act/Sigmoid` | pointwise | fused_pwn | 0.128 | 1.5% | memory-bound |\n\n_Modelled (roofline over the Jetson Orin NX 16GB fact table), not measured. Use it to compare options; use the layer report for ground truth._",
+      "data": {
+        "_data_file": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/engine.data.json"
+      },
+      "warnings": [],
+      "artifacts": {
+        "engine": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/best.fp32.plan",
+        "tactics": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/engine_tactics.json"
+      },
+      "recorded_at": 1792436979.8235474
+    },
+    "accuracy": {
+      "step": "accuracy",
+      "status": "warning",
+      "summary": "mAP@0.5 0.0000 against COCO 2017 validation slice (30 samples) ground truth (unchanged vs the ONNX on the same data) \u00b7 30 sample(s)",
+      "detail": "**mAP@0.5 0.0000 against COCO 2017 validation slice (30 samples) ground truth (unchanged vs the ONNX on the same data) \u00b7 30 sample(s)**\n\n| | |\n|---|---|\n| Measured against | COCO 2017 validation slice (30 samples) ground truth |\n| Samples | 30 |\n| Engine | `best.fp32.plan` |\n| Reference | `best.onnx` (FP32 ONNX) |\n\n| Metric | Engine | ONNX | Change |\n|---|---:|---:|---:|\n| mAP@0.5 | 0.0000 | 0.0000 | +0.0000 |\n| mAP@0.5:0.95 | 0.0000 | 0.0000 | +0.0000 |\n| Precision@0.5 | 0.0000 | 0.0000 | +0.0000 |\n| Recall@0.5 | 0.0000 | 0.0000 | +0.0000 |\n| Predictions | 25 | 25 | +0.0000 |\n| Ground-truth objects | 296 | 296 | +0.0000 |\n\n**What these mean**\n\n- **mAP@0.5** \u2014 Mean average precision at IoU 0.5 \u2014 the standard detection score. Charges for missed objects and for false positives, which a box-overlap average cannot.\n- **mAP@0.5:0.95** \u2014 Averaged over ten IoU thresholds from 0.5 to 0.95. Stricter: it moves when box coordinates drift, not only when detections are lost.\n- **Precision@0.5** \u2014 Of everything the model reported, how much was real.\n- **Recall@0.5** \u2014 Of everything that was there, how much it found.\n- **Predictions** \u2014 Total detections reported across the set.\n- **Ground-truth objects** \u2014 Total objects the labels contain.",
+      "data": {
+        "task": "detection",
+        "source": "dataset",
+        "dataset_name": "COCO 2017 validation slice (30 samples)",
+        "samples": 30,
+        "engine_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/best.fp32.plan",
+        "onnx_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+        "precision": "fp32",
+        "primary_key": "mAP50",
+        "metrics": [
+          {
+            "key": "mAP50",
+            "label": "mAP@0.5",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Mean average precision at IoU 0.5 \u2014 the standard detection score. Charges for missed objects and for false positives, which a box-overlap average cannot."
+          },
+          {
+            "key": "mAP",
+            "label": "mAP@0.5:0.95",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Averaged over ten IoU thresholds from 0.5 to 0.95. Stricter: it moves when box coordinates drift, not only when detections are lost."
+          },
+          {
+            "key": "precision",
+            "label": "Precision@0.5",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Of everything the model reported, how much was real."
+          },
+          {
+            "key": "recall",
+            "label": "Recall@0.5",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Of everything that was there, how much it found."
+          },
+          {
+            "key": "n_pred",
+            "label": "Predictions",
+            "value": 25.0,
+            "higher_is_better": true,
+            "unit": "raw",
+            "hint": "Total detections reported across the set."
+          },
+          {
+            "key": "n_gt",
+            "label": "Ground-truth objects",
+            "value": 296.0,
+            "higher_is_better": true,
+            "unit": "raw",
+            "hint": "Total objects the labels contain."
+          }
+        ],
+        "baseline": [
+          {
+            "key": "mAP50",
+            "label": "mAP@0.5",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Mean average precision at IoU 0.5 \u2014 the standard detection score. Charges for missed objects and for false positives, which a box-overlap average cannot."
+          },
+          {
+            "key": "mAP",
+            "label": "mAP@0.5:0.95",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Averaged over ten IoU thresholds from 0.5 to 0.95. Stricter: it moves when box coordinates drift, not only when detections are lost."
+          },
+          {
+            "key": "precision",
+            "label": "Precision@0.5",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Of everything the model reported, how much was real."
+          },
+          {
+            "key": "recall",
+            "label": "Recall@0.5",
+            "value": 0.0,
+            "higher_is_better": true,
+            "unit": "ratio",
+            "hint": "Of everything that was there, how much it found."
+          },
+          {
+            "key": "n_pred",
+            "label": "Predictions",
+            "value": 25.0,
+            "higher_is_better": true,
+            "unit": "raw",
+            "hint": "Total detections reported across the set."
+          },
+          {
+            "key": "n_gt",
+            "label": "Ground-truth objects",
+            "value": 296.0,
+            "higher_is_better": true,
+            "unit": "raw",
+            "hint": "Total objects the labels contain."
+          }
+        ],
+        "warnings": [
+          "This detector's head could not be identified as YOLOv5-style (objectness column) or YOLOv8-style (no objectness), so the modern layout was assumed. If the model is a v5/v6/v7/YOLOX export, every score here is multiplied by the wrong column and the mAP is not trustworthy."
+        ],
+        "error": "",
+        "headline": "mAP@0.5 0.0000 against COCO 2017 validation slice (30 samples) ground truth (unchanged vs the ONNX on the same data) \u00b7 30 sample(s)",
+        "primary_value": 0.0
+      },
+      "warnings": [
+        "This detector's head could not be identified as YOLOv5-style (objectness column) or YOLOv8-style (no objectness), so the modern layout was assumed. If the model is a v5/v6/v7/YOLOX export, every score here is multiplied by the wrong column and the mAP is not trustworthy."
+      ],
+      "artifacts": {},
+      "recorded_at": 1792437193.1707041
+    }
+  },
+  "constraint": {},
+  "choices": {
+    "selected_artifact": "baseline",
+    "optimization_decision": "",
+    "quantization_preparation": {},
+    "task": "detection"
+  }
+}

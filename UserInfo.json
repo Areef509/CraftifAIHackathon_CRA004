@@ -1,0 +1,851 @@
+{
+  "info": {
+    "project_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring",
+    "pipeline_command": "python application.py --input /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 --model model/yolo11s.onnx",
+    "project_name": "Workplace Safety Zone Monitoring",
+    "important_files": [],
+    "model_paths": [
+      "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+    ],
+    "model_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx",
+    "architecture": {
+      "connections": [
+        {
+          "from": "n1",
+          "to": "n2"
+        },
+        {
+          "from": "n2",
+          "to": "n3"
+        },
+        {
+          "from": "n3",
+          "to": "n4"
+        },
+        {
+          "from": "n4",
+          "to": "n5"
+        },
+        {
+          "from": "n5",
+          "to": "n6"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "n1",
+          "name": "Video input",
+          "short_description": "Reads frames from the supplied prerecorded video."
+        },
+        {
+          "id": "n2",
+          "name": "Frame preprocessing",
+          "short_description": "Resizes and letterboxes frames to 640×640, converts to RGB, and normalizes pixel values."
+        },
+        {
+          "id": "n3",
+          "name": "YOLO11s ONNX detector",
+          "short_description": "Produces raw detection predictions for COCO classes."
+        },
+        {
+          "id": "n4",
+          "name": "Detection decoder",
+          "short_description": "Transposes predictions, applies confidence filtering and NMS, and returns labeled boxes."
+        },
+        {
+          "id": "n5",
+          "name": "Person tracker",
+          "short_description": "Associates detections across frames to maintain person IDs."
+        },
+        {
+          "id": "n6",
+          "name": "Zone status and output",
+          "short_description": "Checks tracked people against configured zones and reports or visualizes their status."
+        }
+      ]
+    },
+    "analysis_summaries": [
+      "The repository processes video frames for people detection using a COCO-pretrained YOLO11s ONNX model. Each frame is letterboxed to 640×640, converted to RGB, and normalized before inference. The decoder filters and suppresses overlapping predictions to produce labeled bounding boxes, including the COCO person class. The application also tracks detections and evaluates tracked people against zones, producing zone-status output.",
+      "[read_file]: application.py: \"\"\"Multi-frame sanity test for industrial restricted-area / danger-zone\nintrusion monitoring (Surveillance > Security).\n\nNo dedicated \"restricted area\" or \"intrusion detection\" model exists on\nHugging Face -- searched \"restricted area\", \"intrusion detection\",\n\"perimeter intrusion\", \"trespassing detection\", \"unauthorized access\ndetection\"; every real hit was a NETWORK/cybersecurity intrusion-detection\nmodel (text classifiers over traffic logs), not visual CCTV. Same\nsituation as QueueLengthMonito"
+    ],
+    "user_prompt": "Hi",
+    "pipeline_requirements": {
+      "extras": {
+        "compile": {
+          "precision": "fp32"
+        },
+        "input_roles": {
+          "input1": "prerecorded factory or warehouse video"
+        },
+        "scene_step": {
+          "advice": [
+            {
+              "cue": "low_light_after_dark",
+              "input": "input1",
+              "text": "At the camera: an IR light or IR-cut switch; for light that is always low, fix exposure and gain and turn off exposure priority."
+            },
+            {
+              "cue": "lighting_variable",
+              "input": "input1",
+              "text": "At the camera: keep auto-exposure on with a capped maximum and exposure priority off; never lock exposure."
+            }
+          ],
+          "answered": {
+            "light__input1": "variable",
+            "motion__input1": "fixed",
+            "privacy__input1": [
+              "nothing"
+            ],
+            "size__input1": "not_sure"
+          },
+          "declined": [],
+          "inputs": {
+            "input1": {
+              "basis": {
+                "asks": [
+                  "privacy"
+                ],
+                "kind": "video file",
+                "mtime": 1792422468.2313437,
+                "size": 85395187,
+                "tasks": [
+                  "people detection@input1",
+                  "PPE violation detection@input1",
+                  "runtime performance metrics@input1"
+                ],
+                "url": "/home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4"
+              },
+              "cues": [
+                "low_light_after_dark",
+                "lighting_variable",
+                "camera_fixed"
+              ],
+              "duty": {
+                "colour_cast": 0.417,
+                "dock_daylight": 0.0,
+                "haze": 0.417,
+                "low_light_after_dark": 0.583
+              },
+              "evidence": [
+                "Brightness changes a lot: the median runs from 0.00 in the darkest moment to 0.44 in the brightest.",
+                "About 33% of the moments looked at are dark (median under 0.22).",
+                "The view holds still between frames, so the camera looks fixed."
+              ],
+              "footage": {
+                "chroma_offset": 0.024,
+                "clipped_fraction": 0.003,
+                "dark_fraction": 0.246,
+                "fps": 60.0,
+                "frames": 9181,
+                "height": 1080,
+                "mean_chroma": 7.5,
+                "motion": "fixed",
+                "noise": 0.15,
+                "p50": 0.284,
+                "rms_contrast": 0.183,
+                "rules": [],
+                "samples": 12,
+                "source": "video file",
+                "suggest": [
+                  "low_light_after_dark",
+                  "lighting_variable"
+                ],
+                "width": 1920
+              },
+              "said": {},
+              "skipped": false
+            }
+          },
+          "ledger": [
+            "CLAHE@input1"
+          ],
+          "needs": [],
+          "privacy_source": [
+            {
+              "boxes": "person",
+              "input": "input1",
+              "task": "people detection"
+            }
+          ],
+          "rules": {
+            "camera_angled": [],
+            "camera_fixed": [
+              "input1"
+            ],
+            "camera_moving": [],
+            "camera_shakes": [],
+            "motion_unknown": [],
+            "no_cloud": [],
+            "privacy": [],
+            "small_objects": [],
+            "store_events_only": []
+          },
+          "version": 1
+        }
+      },
+      "inputs": [
+        {
+          "data_kind": [
+            "frames"
+          ],
+          "fps": 60.0,
+          "id": "input1",
+          "resolution": "1920x1080",
+          "role": "prerecorded factory or warehouse video",
+          "type": "video file",
+          "url": "/home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4"
+        }
+      ],
+      "needs_model": null,
+      "outputs": [
+        {
+          "id": "out1",
+          "type": "saved_video",
+          "url": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/output.mp4"
+        },
+        {
+          "id": "out2",
+          "type": "metadata_file",
+          "url": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json"
+        }
+      ],
+      "parallel": false,
+      "special_algorithms": [
+        {
+          "applies_to": [
+            "people detection@input1"
+          ],
+          "category": "tracking",
+          "confirmed": true,
+          "description": "Track each detected person with persistent IDs.",
+          "name": "person tracking",
+          "parameters": {
+            "method": "persistent-ID multi-object tracking"
+          },
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "person tracking@input1"
+          ],
+          "category": "gating",
+          "confirmed": true,
+          "description": "Detect each tracked person's entry into and exit from an editable restricted-zone polygon by boundary crossing. Configure the polygon over the clearly visible restricted-access area, such as a marked or barricaded zone; if none is visible, use a clearly defined area near restricted machinery or a safety barrier. Keep the polygon editable for adjustment during testing. Record each event with the person's persistent tracking ID, timestamp, and evidence frame.",
+          "name": "restricted-zone entry/exit events",
+          "parameters": {
+            "editable": true,
+            "method": "restricted-zone polygon boundary crossing",
+            "zone_definition": "Editable polygon over the clearly visible marked or barricaded restricted-access area; if none is visible, use a clearly defined area near restricted machinery or a safety barrier."
+          },
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "person tracking@input1"
+          ],
+          "category": "other",
+          "confirmed": true,
+          "description": "Detect prolonged presence after a person remains within the restricted zone for 30 seconds. Assign CRITICAL severity when the threshold is reached.",
+          "name": "prolonged-presence events",
+          "parameters": {
+            "duration_seconds": 30,
+            "method": "in-zone dwell time"
+          },
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "person tracking@input1"
+          ],
+          "category": "other",
+          "confirmed": true,
+          "description": "Detect a repeat-entry event when a person enters the restricted zone 3 times within a 60-second window. Assign HIGH severity.",
+          "name": "repeat-entry events",
+          "parameters": {
+            "entry_count": 3,
+            "method": "repeated restricted-zone entries",
+            "window_seconds": 60
+          },
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "restricted-zone entry/exit events@input1",
+            "prolonged-presence events@input1",
+            "repeat-entry events@input1",
+            "PPE violation detection@input1"
+          ],
+          "category": "other",
+          "confirmed": true,
+          "description": "Generate structured JSON incident records containing timestamp, track ID, event type, confidence, severity, and evidence references including an evidence frame. Severity mapping: restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when detected by a compatible PPE model. Include measured FPS, inference latency, and processing time in the JSON output.",
+          "name": "timestamped incident records",
+          "parameters": {
+            "method": "incident event record assembly",
+            "severity_mapping": {
+              "normal_exit": "LOW",
+              "ppe_violation_when_detected_by_a_compati": "HIGH",
+              "prolonged_presence_beyond_configured_thr": "CRITICAL",
+              "repeat_entry_within_60_seconds": "HIGH",
+              "restricted_zone_entry": "HIGH"
+            }
+          },
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "people detection@input1",
+            "person tracking@input1",
+            "restricted-zone entry/exit events@input1",
+            "prolonged-presence events@input1",
+            "repeat-entry events@input1",
+            "PPE violation detection@input1",
+            "timestamped incident records@input1"
+          ],
+          "category": "other",
+          "confirmed": true,
+          "description": "Annotate the video with person bounding boxes, persistent tracking IDs, the restricted-zone boundary, dwell timers, and incident labels. Show PPE violations only when detected by a compatible PPE model; do not infer them from person detections.",
+          "name": "safety incident video annotation",
+          "parameters": {
+            "method": "video overlay rendering"
+          },
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "runtime performance metrics@input1"
+          ],
+          "category": "other",
+          "confirmed": true,
+          "description": "Measure and report FPS, inference latency, and processing time in the structured JSON output.",
+          "name": "runtime performance metrics",
+          "reference_path": null
+        },
+        {
+          "applies_to": [
+            "people detection@input1",
+            "PPE violation detection@input1",
+            "runtime performance metrics@input1"
+          ],
+          "catalogue": "§3 Scene · Darkness",
+          "category": "pre_nn_conditioning",
+          "condition": "Strength ramps from 0 at median luma 0.30 to full at 0.15; frames brighter than 0.30 pass through untouched.",
+          "confirmed": true,
+          "cue": [
+            "low_light_after_dark"
+          ],
+          "description": "Local contrast, without blowing out bright areas. Added because input1 is dark at night and changes between daylight and dark. The corrected picture is also what the saved video shows.",
+          "group": 3,
+          "name": "CLAHE",
+          "parameters": {
+            "ops": [
+              {
+                "clip_limit": 2.0,
+                "op": "clahe_luma",
+                "tiles": [
+                  8,
+                  8
+                ]
+              }
+            ],
+            "ramp": {
+              "full": 0.15,
+              "measure": "p50",
+              "off": 0.3
+            }
+          },
+          "placement": {
+            "order": 28,
+            "position": "pre_pgie"
+          },
+          "reference_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/scene_steps/frame_conditioning_11bbafe058.py",
+          "source": "scene"
+        }
+      ],
+      "target_classes": [],
+      "task_kind": null,
+      "tasks": [
+        {
+          "details": "Use a compatible pretrained YOLO model and existing compatible PipeGen models and nodes. Do not add unsupported PPE detection or incompatible TensorRT components. Validate tensor shapes, model paths, and graph connections; report missing dependencies before execution. Prioritize a pipeline that executes successfully.",
+          "for_input": "input1",
+          "needs_model": true,
+          "target_classes": [
+            "people"
+          ],
+          "type": "people detection"
+        },
+        {
+          "details": "Detect missing safety helmets and missing reflective high-visibility vests only if a compatible PPE model is available. Use Model 2 at the supplied existing path `home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/best.onnx`. Never infer missing PPE from a person-only detector. Do not add unsupported PPE detection; report missing model dependencies before execution. Assign HIGH severity only for violations actually detected by a compatible model.",
+          "for_input": "input1",
+          "needs_model": true,
+          "target_classes": [
+            "missing safety helmets",
+            "missing reflective high-visibility vests"
+          ],
+          "type": "PPE violation detection"
+        },
+        {
+          "details": "Measure and report FPS, inference latency, and processing time in the structured JSON output.",
+          "for_input": "input1",
+          "needs_model": false,
+          "target_classes": [],
+          "type": "runtime performance metrics"
+        },
+        {
+          "derives_from": [
+            "people detection@input1"
+          ],
+          "details": "Track each detected person with persistent IDs.",
+          "for_input": "input1",
+          "method": {
+            "catalogue": null,
+            "from": "words",
+            "name": "persistent-ID multi-object tracking",
+            "params": {},
+            "quote": "track each person with persistent IDs"
+          },
+          "needs_model": false,
+          "target_classes": [
+            "people"
+          ],
+          "type": "person tracking"
+        },
+        {
+          "derives_from": [
+            "person tracking@input1"
+          ],
+          "details": "Detect each tracked person's entry into and exit from an editable restricted-zone polygon by boundary crossing. Configure the polygon over the clearly visible restricted-access area, such as a marked or barricaded zone; if none is visible, use a clearly defined area near restricted machinery or a safety barrier. Keep the polygon editable for adjustment during testing. Record each event with the person's persistent tracking ID, timestamp, and evidence frame.",
+          "for_input": "input1",
+          "method": {
+            "catalogue": null,
+            "from": "words",
+            "name": "restricted-zone polygon boundary crossing",
+            "params": {
+              "editable": true,
+              "zone_definition": "Editable polygon over the clearly visible marked or barricaded restricted-access area; if none is visible, use a clearly defined area near restricted machinery or a safety barrier."
+            },
+            "quote": "monitor an editable restricted-zone polygon. Detect zone entry and exit"
+          },
+          "needs_model": false,
+          "target_classes": [
+            "people"
+          ],
+          "type": "restricted-zone entry/exit events"
+        },
+        {
+          "derives_from": [
+            "person tracking@input1"
+          ],
+          "details": "Detect prolonged presence after a person remains within the restricted zone for 30 seconds. Assign CRITICAL severity when the threshold is reached.",
+          "for_input": "input1",
+          "method": {
+            "catalogue": null,
+            "from": "default",
+            "name": "in-zone dwell time",
+            "params": {
+              "duration_seconds": 30
+            }
+          },
+          "needs_model": false,
+          "target_classes": [
+            "people"
+          ],
+          "type": "prolonged-presence events"
+        },
+        {
+          "derives_from": [
+            "person tracking@input1"
+          ],
+          "details": "Detect a repeat-entry event when a person enters the restricted zone 3 times within a 60-second window. Assign HIGH severity.",
+          "for_input": "input1",
+          "method": {
+            "catalogue": null,
+            "from": "default",
+            "name": "repeated restricted-zone entries",
+            "params": {
+              "entry_count": 3,
+              "window_seconds": 60
+            }
+          },
+          "needs_model": false,
+          "target_classes": [
+            "people"
+          ],
+          "type": "repeat-entry events"
+        },
+        {
+          "derives_from": [
+            "restricted-zone entry/exit events@input1",
+            "prolonged-presence events@input1",
+            "repeat-entry events@input1",
+            "PPE violation detection@input1"
+          ],
+          "details": "Generate structured JSON incident records containing timestamp, track ID, event type, confidence, severity, and evidence references including an evidence frame. Severity mapping: restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when detected by a compatible PPE model. Include measured FPS, inference latency, and processing time in the JSON output.",
+          "for_input": "input1",
+          "method": {
+            "catalogue": null,
+            "from": "words",
+            "name": "incident event record assembly",
+            "params": {
+              "severity_mapping": {
+                "normal_exit": "LOW",
+                "ppe_violation_when_detected_by_a_compati": "HIGH",
+                "prolonged_presence_beyond_configured_thr": "CRITICAL",
+                "repeat_entry_within_60_seconds": "HIGH",
+                "restricted_zone_entry": "HIGH"
+              }
+            },
+            "quote": "Generate timestamped incident records with track ID, event type, confidence, and severity"
+          },
+          "needs_model": false,
+          "target_classes": [
+            "people"
+          ],
+          "type": "timestamped incident records"
+        },
+        {
+          "derives_from": [
+            "people detection@input1",
+            "person tracking@input1",
+            "restricted-zone entry/exit events@input1",
+            "prolonged-presence events@input1",
+            "repeat-entry events@input1",
+            "PPE violation detection@input1",
+            "timestamped incident records@input1"
+          ],
+          "details": "Annotate the video with person bounding boxes, persistent tracking IDs, the restricted-zone boundary, dwell timers, and incident labels. Show PPE violations only when detected by a compatible PPE model; do not infer them from person detections.",
+          "for_input": "input1",
+          "method": {
+            "catalogue": null,
+            "from": "words",
+            "name": "video overlay rendering",
+            "params": {},
+            "quote": "Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels"
+          },
+          "needs_model": false,
+          "target_classes": [
+            "people"
+          ],
+          "type": "safety incident video annotation"
+        }
+      ],
+      "user_intent_summary": "Build an AI Workplace Safety Sentinel pipeline for prerecorded factory or warehouse video: detect and track people, monitor restricted-zone events, detect PPE violations only when a compatible model is available, generate timestamped incident records with severity and evidence references, measure performance, and save an annotated video and structured JSON outputs."
+    },
+    "repo_sources": [
+      {
+        "analysis_summaries": [
+          "The repository processes video frames for people detection using a COCO-pretrained YOLO11s ONNX model. Each frame is letterboxed to 640×640, converted to RGB, and normalized before inference. The decoder filters and suppresses overlapping predictions to produce labeled bounding boxes, including the COCO person class. The application also tracks detections and evaluates tracked people against zones, producing zone-status output.",
+          "[read_file]: application.py: \"\"\"Multi-frame sanity test for industrial restricted-area / danger-zone\nintrusion monitoring (Surveillance > Security).\n\nNo dedicated \"restricted area\" or \"intrusion detection\" model exists on\nHugging Face -- searched \"restricted area\", \"intrusion detection\",\n\"perimeter intrusion\", \"trespassing detection\", \"unauthorized access\ndetection\"; every real hit was a NETWORK/cybersecurity intrusion-detection\nmodel (text classifiers over traffic logs), not visual CCTV. Same\nsituation as QueueLengthMonito"
+        ],
+        "architecture": {
+          "connections": [
+            {
+              "from": "n1",
+              "to": "n2"
+            },
+            {
+              "from": "n2",
+              "to": "n3"
+            },
+            {
+              "from": "n3",
+              "to": "n4"
+            },
+            {
+              "from": "n4",
+              "to": "n5"
+            },
+            {
+              "from": "n5",
+              "to": "n6"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "n1",
+              "name": "Video input",
+              "short_description": "Reads frames from the supplied prerecorded video."
+            },
+            {
+              "id": "n2",
+              "name": "Frame preprocessing",
+              "short_description": "Resizes and letterboxes frames to 640×640, converts to RGB, and normalizes pixel values."
+            },
+            {
+              "id": "n3",
+              "name": "YOLO11s ONNX detector",
+              "short_description": "Produces raw detection predictions for COCO classes."
+            },
+            {
+              "id": "n4",
+              "name": "Detection decoder",
+              "short_description": "Transposes predictions, applies confidence filtering and NMS, and returns labeled boxes."
+            },
+            {
+              "id": "n5",
+              "name": "Person tracker",
+              "short_description": "Associates detections across frames to maintain person IDs."
+            },
+            {
+              "id": "n6",
+              "name": "Zone status and output",
+              "short_description": "Checks tracked people against configured zones and reports or visualizes their status."
+            }
+          ]
+        },
+        "class_coverage": {
+          "people detection@input1": {
+            "targets": [
+              {
+                "basis": "The selected model metadata identifies a COCO-trained detector and lists 'person'; application.py defines the same COCO class mapping and decodes detections.",
+                "kind": "labels",
+                "labels": [
+                  "person"
+                ],
+                "model_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx",
+                "output": "Decoded object detections with class labels, bounding boxes, and confidence scores.",
+                "requested": "people",
+                "status": "supported"
+              }
+            ],
+            "version": 1
+          }
+        },
+        "class_coverage_signature": "51bd10fd10bd36bff03e2f64",
+        "covers_tasks": [
+          "people detection@input1"
+        ],
+        "id": "src1",
+        "label_space": {
+          "count": 80,
+          "labels": [
+            "person",
+            "bicycle",
+            "car",
+            "motorcycle",
+            "airplane",
+            "bus",
+            "train",
+            "truck",
+            "boat",
+            "traffic light",
+            "fire hydrant",
+            "stop sign",
+            "parking meter",
+            "bench",
+            "bird",
+            "cat",
+            "dog",
+            "horse",
+            "sheep",
+            "cow",
+            "elephant",
+            "bear",
+            "zebra",
+            "giraffe",
+            "backpack",
+            "umbrella",
+            "handbag",
+            "tie",
+            "suitcase",
+            "frisbee",
+            "skis",
+            "snowboard",
+            "sports ball",
+            "kite",
+            "baseball bat",
+            "baseball glove",
+            "skateboard",
+            "surfboard",
+            "tennis racket",
+            "bottle",
+            "wine glass",
+            "cup",
+            "fork",
+            "knife",
+            "spoon",
+            "bowl",
+            "banana",
+            "apple",
+            "sandwich",
+            "orange",
+            "broccoli",
+            "carrot",
+            "hot dog",
+            "pizza",
+            "donut",
+            "cake",
+            "chair",
+            "couch",
+            "potted plant",
+            "bed",
+            "dining table",
+            "toilet",
+            "tv",
+            "laptop",
+            "mouse",
+            "remote",
+            "keyboard",
+            "cell phone",
+            "microwave",
+            "oven",
+            "toaster",
+            "sink",
+            "refrigerator",
+            "book",
+            "clock",
+            "vase",
+            "scissors",
+            "teddy bear",
+            "hair drier",
+            "toothbrush"
+          ],
+          "source": "model/yolo11s.onnx metadata 'names'; application.py",
+          "version": 3
+        },
+        "model_paths": [
+          "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+        ],
+        "model_roles": [
+          {
+            "for_task": "people detection@input1",
+            "path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx",
+            "role": "Detects people and produces bounding boxes and class confidences; the script can then track detections across video fram"
+          }
+        ],
+        "pipeline_command": "python application.py --input /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 --model model/yolo11s.onnx",
+        "project_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring",
+        "scan_hash": "9949c29d9bdc10bba3b410b441d647d8311f42c5f02ca8bdaac7a5d4e408ecb2",
+        "selected_models": [
+          "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+        ],
+        "source": "local",
+        "subfolder": null,
+        "unused_models": []
+      },
+      {
+        "analysis_summaries": [
+          "This repository provides a single-image PPE object-detection sanity test using an ONNX YOLOv8 model. The application loads an image with OpenCV, letterboxes it to 640×640, converts it to RGB, scales pixel values, and runs ONNX inference. The model outputs raw bounding boxes and scores for Gloves, Vest, goggles, helmet, mask, and safety_shoe; the decoder filters predictions, applies NMS, and maps detections to image coordinates. It reports visible PPE detections, not missing-equipment violations. The supplied task is a video file, which this entry script does not process.",
+          "[read_file]: application.py: \"\"\"Single-image sanity test for Tanishjain9/yolov8n-ppe-detection-6classes.\n\nUltralytics YOLOv8n detector, 6 PPE classes. Input images[1,3,640,640] (RGB,\nletterbox to 640 with grey (114,114,114) padding, /255, no mean/std). Output\noutput0[1,10,8400] = 4 bbox (cx,cy,w,h in 640-space) + 6 class scores, raw\n(export used nms:False) -> needs transpose + confidence filter + NMS.\nRecipe/contract from the embedded ONNX metadata and README.\n\"\"\"\n\nimport argparse\nimport os\nimport re\nfrom pathlib import Pat"
+        ],
+        "architecture": {
+          "connections": [
+            {
+              "from": "n1",
+              "to": "n2"
+            },
+            {
+              "from": "n2",
+              "to": "n3"
+            },
+            {
+              "from": "n3",
+              "to": "n4"
+            },
+            {
+              "from": "n4",
+              "to": "n5"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "n1",
+              "name": "Image path",
+              "short_description": "The application accepts an image path; it is not a video-processing entry point."
+            },
+            {
+              "id": "n2",
+              "name": "OpenCV image loading",
+              "short_description": "Reads the image and records its original dimensions."
+            },
+            {
+              "id": "n3",
+              "name": "YOLOv8 preprocessing",
+              "short_description": "Letterboxes to 640×640, converts BGR to RGB, scales pixels to [0,1], and arranges channels as NCHW."
+            },
+            {
+              "id": "n4",
+              "name": "ONNX PPE detector",
+              "short_description": "Produces raw box and class-score predictions for six PPE classes."
+            },
+            {
+              "id": "n5",
+              "name": "Detection decoder",
+              "short_description": "Applies confidence filtering and NMS, maps detections back to image coordinates, and reports visible PPE objects."
+            }
+          ]
+        },
+        "class_coverage": {
+          "PPE violation detection@input1": {
+            "targets": [
+              {
+                "basis": "The model and application identify positive PPE detections such as helmet. Neither provides person-to-PPE association or a decoder that infers missing equipment.",
+                "kind": "labels",
+                "labels": [],
+                "model_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+                "output": "Bounding boxes and class scores for visible PPE objects, decoded and filtered with non-maximum suppression; no absence or violation output.",
+                "requested": "missing safety helmets",
+                "status": "unsupported"
+              },
+              {
+                "basis": "The model and application identify positive PPE detections such as Vest. They do not determine whether a person is missing a vest or whether a vest is reflective/high-visibility.",
+                "kind": "labels",
+                "labels": [],
+                "model_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+                "output": "Bounding boxes and class scores for visible PPE objects, decoded and filtered with non-maximum suppression; no absence or violation output.",
+                "requested": "missing reflective high-visibility vests",
+                "status": "unsupported"
+              }
+            ],
+            "version": 1
+          }
+        },
+        "class_coverage_signature": "5014f03147cd183329222e87",
+        "covers_tasks": [
+          "PPE violation detection@input1"
+        ],
+        "id": "src2",
+        "label_space": {
+          "count": 6,
+          "labels": [
+            "Gloves",
+            "Vest",
+            "goggles",
+            "helmet",
+            "mask",
+            "safety_shoe"
+          ],
+          "source": "model/best.onnx metadata 'names'; application.py",
+          "version": 3
+        },
+        "model_paths": [
+          "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx"
+        ],
+        "model_roles": [
+          {
+            "for_task": "PPE violation detection@input1",
+            "path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+            "role": "Detects visible PPE objects (including helmets and vests); its output does not establish whether PPE is missing."
+          }
+        ],
+        "pipeline_command": "python application.py /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4",
+        "project_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit",
+        "scan_hash": "cb02a8363abf9213d7a8b58d23ec3ba90d568a97b275ff99b2b8f88056a0bbb0",
+        "selected_models": [
+          "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx"
+        ],
+        "source": "local",
+        "subfolder": null,
+        "unused_models": []
+      }
+    ],
+    "class_waivers": [
+      "classes.src2.PPE violation detection@input1"
+    ]
+  },
+  "loop": {
+    "turn_id": 0,
+    "conversation_context": "",
+    "questionForUser": [],
+    "userConfirmed": true
+  }
+}

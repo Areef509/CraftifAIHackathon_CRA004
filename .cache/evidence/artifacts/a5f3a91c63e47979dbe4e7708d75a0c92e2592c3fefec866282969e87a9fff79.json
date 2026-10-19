@@ -1,0 +1,1 @@
+"{\n    \"root\": \"/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit\",\n    \"tree\": {\n        \"model\": {\n            \"best.onnx\": \"model/best.onnx\",\n            \"download.sh\": \"model/download.sh\"\n        },\n        \"application.py\": \"application.py\",\n        \"README.md\": \"README.md\"\n    }\n}"

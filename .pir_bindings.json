@@ -1,0 +1,31 @@
+{
+  "graph_sha256": "a8a7602cc7da048e78329a70c47cde83b3c1271838453291e77f67fd39b203f6",
+  "bindings": {
+    "inputs": [],
+    "outputs": [],
+    "tasks": [
+      {
+        "node_ids": [
+          3,
+          4,
+          5
+        ],
+        "task_id": "people detection@input1"
+      },
+      {
+        "node_ids": [
+          6,
+          7,
+          8
+        ],
+        "task_id": "PPE violation detection@input1"
+      },
+      {
+        "node_ids": [
+          13
+        ],
+        "task_id": "runtime performance metrics@input1"
+      }
+    ]
+  }
+}

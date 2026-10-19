@@ -1,0 +1,1780 @@
+{
+  "analysis_state": {
+    "architecture": {
+      "connections": [
+        {
+          "from": "n1",
+          "to": "n2"
+        },
+        {
+          "from": "n2",
+          "to": "n3"
+        },
+        {
+          "from": "n3",
+          "to": "n4"
+        },
+        {
+          "from": "n4",
+          "to": "n5"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "n1",
+          "name": "Image path",
+          "short_description": "The application accepts an image path; it is not a video-processing entry point."
+        },
+        {
+          "id": "n2",
+          "name": "OpenCV image loading",
+          "short_description": "Reads the image and records its original dimensions."
+        },
+        {
+          "id": "n3",
+          "name": "YOLOv8 preprocessing",
+          "short_description": "Letterboxes to 640×640, converts BGR to RGB, scales pixels to [0,1], and arranges channels as NCHW."
+        },
+        {
+          "id": "n4",
+          "name": "ONNX PPE detector",
+          "short_description": "Produces raw box and class-score predictions for six PPE classes."
+        },
+        {
+          "id": "n5",
+          "name": "Detection decoder",
+          "short_description": "Applies confidence filtering and NMS, maps detections back to image coordinates, and reports visible PPE objects."
+        }
+      ]
+    },
+    "info": {
+      "model_paths": [
+        "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx"
+      ],
+      "pipeline_command": "python application.py /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4",
+      "project_name": "ppe-kit",
+      "project_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit"
+    },
+    "loop_count": 1,
+    "repo_url": "",
+    "tools_history": [
+      {
+        "result": "This repository provides a single-image PPE object-detection sanity test using an ONNX YOLOv8 model. The application loads an image with OpenCV, letterboxes it to 640×640, converts it to RGB, scales pixel values, and runs ONNX inference. The model outputs raw bounding boxes and scores for Gloves, Vest, goggles, helmet, mask, and safety_shoe; the decoder filters predictions, applies NMS, and maps detections to image coordinates. It reports visible PPE detections, not missing-equipment violations. The supplied task is a video file, which this entry script does not process.",
+        "tool": "_summary"
+      },
+      {
+        "result": "[read_file]: application.py: \"\"\"Single-image sanity test for Tanishjain9/yolov8n-ppe-detection-6classes.\n\nUltralytics YOLOv8n detector, 6 PPE classes. Input images[1,3,640,640] (RGB,\nletterbox to 640 with grey (114,114,114) padding, /255, no mean/std). Output\noutput0[1,10,8400] = 4 bbox (cx,cy,w,h in 640-space) + 6 class scores, raw\n(export used nms:False) -> needs transpose + confidence filter + NMS.\nRecipe/contract from the embedded ONNX metadata and README.\n\"\"\"\n\nimport argparse\nimport os\nimport re\nfrom pathlib import Pat",
+        "tool": "read_file"
+      }
+    ]
+  },
+  "benchmark_readme": "# PipeGen Benchmark Repository\n\nThis repository is a benchmark collection for PipeGen. It gathers multiple computer vision and perception projects that cover object detection, depth estimation, semantic segmentation, and multi-modal autonomous driving perception, alongside a set of applied retail, logistics, surveillance, and workplace-safety use cases, making it a practical workspace for evaluating pipeline generation and orchestration across varied real-world AI repositories.\n\nFor model setup, each repository may include its own helper shell script such as `download.sh` in models folder, `download_models.sh`, or a similarly named downloader. Users can run the relevant script inside the target repository to fetch the required pretrained models and supporting assets before executing the pipeline. Model weights are not committed here, so running that downloader is a required first step for most folders.\n\n## Repository Overview\n\n`AbandonedObjectDetection` flags unattended luggage in surveillance footage by tracking COCO backpack/handbag/suitcase detections from an Ultralytics YOLO11s ONNX detector with a SORT-style IOU + Hungarian tracker.  \nAn object is reported as abandoned only when it stays stationary (displacement under 20% of its own box diagonal) and no person's box is within three box-diagonals of it, continuously, for `--abandoned-seconds`.  \nWithin the PipeGen benchmark collection, it contributes a security-analytics workload that layers multi-object tracking and owner-association geometry on top of a plain detector rather than a purpose-trained class.\n\n`ANPR` is an automatic number plate recognition pipeline that chains two ONNX models: a YOLOv9-t 384x384 license-plate detector with NMS baked into the graph, then a Compact Convolutional Transformer OCR head that reads 10 character slots over a 37-symbol alphabet plus a 66-way region prediction.  \nIt is a from-scratch onnxruntime implementation rather than a wrapper around the `fast_alpr` package, and `model/download.sh` fetches both weights along with the OCR alphabet/region config the recognizer cannot run without.  \nFor PipeGen benchmarking, it adds a genuinely two-stage detect-then-recognize workload where the second model consumes crops produced by the first.\n\n`Bevfusion` is a bird's-eye-view perception repository focused on fusing camera and LiDAR information for autonomous driving workloads.  \nIt likely includes model setup, pretrained checkpoint download flows, and evaluation or demo utilities for 3D scene understanding tasks.  \nAs part of this benchmark set, it represents a large multi-modal project with heavier dependencies, richer model logic, and end-to-end perception pipelines.\n\n`CheckoutMonitoring` reports per-lane checkout status from a single image or a sequence of frames, using the same Ultralytics YOLO11s COCO person detector reused across the retail use cases in this collection.  \nEach lane in `--zone-file` carries its own cashier polygon and queue polygon, and a lane resolves to OPEN - SERVING, OPEN - IDLE, CLOSED, or UNSTAFFED - QUEUE! — the last being the state a store manager actually needs surfaced.  \nWithin the PipeGen benchmark, it contributes a multi-zone rule engine over detection output, and it expects a low `--conf-threshold` because ceiling-mounted wide-angle shots make people small.\n\n`ContainerFillLevel` estimates how full a container is from one monocular image by running Depth-Anything-V2-metric through ONNX Runtime and reading the per-row median depth profile of the frame.  \nThe largest smoothed discontinuity in that profile is taken as the fill boundary — nearer side filled, farther side empty — and fill percentage is the filled row fraction; a frame with no qualifying jump reads as effectively full.  \nFor PipeGen benchmarking, it adds a dense metric-depth workload whose output is a derived scalar rather than boxes or masks, and it is a heuristic rather than a calibrated volumetric measurement.\n\n`ConveyorBeltMonitoring` runs a YOLOv8 detector fine-tuned for conveyor lines (`abhiejit/package-conveyor-ggu-yolo2`) over four classes: bag, box, carton, and conveyor.  \nInput is `images[1,3,640,640]` RGB letterboxed to 640 with grey padding and scaled by 1/255; output `output0[1,8,8400]` is raw 4-box plus 4-class and needs the usual transpose, confidence filter, and NMS.  \nWithin the PipeGen benchmark collection, it contributes a logistics-domain detection workload driven entirely by the contract embedded in the ONNX metadata.\n\n`CustomerDwellTime` measures how long each individual shopper stays inside a zone, combining the YOLO11s person detector, a from-scratch SORT-style tracker (IOU + Hungarian matching), and a polygon zone from `--zone-file`.  \nDwell is the cumulative seconds a track's foot-point spends inside the zone, converted from frame counts using the source fps, so it needs a video or an ordered directory of frames rather than a single image.  \nFor PipeGen benchmarking, it adds a detect-track-and-clock pipeline where the answer only exists across frames, with no cross-session re-identification once a track is lost.\n\n`CustomerHeatmaps` builds a retail foot-traffic heatmap by accumulating a small Gaussian blob at each detected person's foot-point into a running 2D density map over every frame of a video.  \nThe accumulator is normalized, colorized with the JET colormap, and alpha-blended over a representative frame, so the output is a single composited image rather than per-frame annotations.  \nWithin the PipeGen benchmark collection, it contributes a spatial-accumulation workload that reduces an entire video to one aggregate visualization.\n\n`DeepLabV3-Plus-MobileNet-onnx` appears to center on semantic segmentation using a DeepLabV3+ architecture with a MobileNet backbone exported to ONNX.  \nIt is well suited for benchmarking lightweight vision inference pipelines where accuracy and deployment efficiency both matter.  \nIn this collection, it offers a focused example of image segmentation, ONNX model handling, and practical inference-oriented project structure.\n\n`EfficientNet` looks like an image classification repository built around the EfficientNet ONNX model for compact and efficient inference.  \nIt likely provides a simple application entry point, model download flow, and label mapping for running classification on input images.  \nWithin the PipeGen benchmark, it contributes a lightweight classification workload that is useful for testing straightforward model loading and prediction pipelines.\n\n`EmptyShelfDetection` locates out-of-stock gaps on retail shelves with `wiwiewei18/smart-shelf-tracker`, a single-class YOLO11n whose confidence is badly miscalibrated by its 497-image training set.  \nIt therefore runs at a deliberately very low confidence threshold and suppresses the resulting noise with two filters: drop boxes centred in the bottom `floor_frac` of the frame, and drop boxes below `min_area_frac` of the image area.  \nFor PipeGen benchmarking, it is a useful example of a detector whose usable operating point sits far from the conventional 0.25-0.5 default.\n\n`Facebook-RTDETR` appears to be an object detection repository based on the RT-DETR model family, likely adapted for ONNX inference and practical deployment.  \nIt seems suited for benchmarking transformer-style real-time detection pipelines that differ from YOLO-based architectures in both model design and runtime behavior.  \nIn this benchmark set, it adds another modern detection workload with pretrained model downloads, application-level inference, and visual output generation.\n\n`FaceMaskDetection` classifies faces as with_mask, without_mask, or mask_weared_incorrect using `spacewalk01/yolov5-face-mask-detection`, a YOLOv5s trained on the classic 853-image Kaggle mask dataset.  \nIt is the one repository here on the classic YOLOv5 head convention — `output0[1,25200,8]` with a separate objectness column, so final confidence is objectness times class score rather than class score alone.  \nThe checkpoint predates the unified `ultralytics` package and will not unpickle through it, so `model/download.sh` exports it with the original yolov5 repo's own `export.py`.\n\n`Fast-SCNN` looks like a semantic segmentation repository centered on the Fast-SCNN architecture for efficient scene parsing.  \nIt likely targets lightweight segmentation use cases where real-time or edge-friendly inference is important, especially for road scenes or general pixel-wise labeling tasks.  \nFor PipeGen benchmarking, it contributes another segmentation-focused pipeline with a simpler application flow and an emphasis on speed-oriented deployment.\n\n`LoiteringDetection` alerts on continuous presence rather than presence itself, pairing the YOLO11s person detector with a SORT-style tracker and the named polygon zones of `RestrictedAreaMonitoring`.  \nEach track carries a session clock over consecutive in-zone frames that resets the moment it leaves, so someone who walks away and comes back starts a fresh visit instead of continuing the old one; `--loiter-seconds` defaults to 30.  \nWithin the PipeGen benchmark collection, it sits between the harmless-zone dwell metric and the always-alert restricted zone, and it needs a video for a real time-threshold reading.\n\n`Mask2Former-Instance-Segmentation` appears to be an instance segmentation repository built around the Mask2Former model for mask-level scene understanding.  \nIt likely supports label-aware segmentation of individual objects, making it useful for benchmarking richer outputs than plain bounding-box detection.  \nWithin the PipeGen benchmark suite, it adds a modern transformer-based segmentation workload with model downloads, application inference, and mask generation behavior.\n\n`multi-model-perception-dashboard` is a self-contained four-model perception stack that runs YOLOv8 object detection, YOLO11 instance segmentation, 2D PAF pose estimation, and MiDaS monocular depth in parallel on a single webcam or video source, then composites the outputs into a labeled 2x2 dashboard with an FPS and per-model latency HUD.  \nInference is fanned out across a `ThreadPoolExecutor(4)` so all four ONNX models execute concurrently per frame, and the result can be displayed live, recorded to a video file, or both — with an included `smoke_test.py` that exercises the same composite path on synthetic frames headlessly.  \nWithin the PipeGen benchmark collection, it stands out as the most pipeline-orchestration-heavy entry: it stresses parallel multi-model scheduling, output fusion, and HUD compositing in a way that single-task repositories do not.\n\n`ONNX-MiDaS-Depth-Estimation` is a depth estimation repository built around the MiDaS model running through ONNX Runtime for efficient inference.  \nIt seems intended for processing images, video, or webcam streams to generate monocular depth maps, which makes it a useful example of dense prediction beyond classification or detection.  \nWithin the PipeGen benchmark, it contributes a depth-focused workload with preprocessing, model execution, and visualization steps.\n\n`ONNX-TopFormer-Semantic-Segmentation` looks like a semantic segmentation repository using the TopFormer architecture in ONNX format.  \nIt appears aimed at efficient dense scene parsing, likely with webcam or image inference paths that emphasize practical deployment and lightweight segmentation performance.  \nFor PipeGen benchmarking, it adds another segmentation pipeline with a distinct model family, ONNX runtime flow, and structured pixel-level prediction output.\n\n`onnx-Ultra-Fast-Lane-Detection-Inference` is a lane detection repository using an ONNX version of the Ultra-Fast Lane Detection model.  \nIt appears aimed at detecting road lanes from driving imagery or video, making it especially relevant for real-time transportation and ADAS-style scenarios.  \nFor PipeGen benchmarking, it adds a specialized structured-vision task with temporal or road-scene inference patterns that differ from generic detection and segmentation projects.\n\n`ONNX-Unidepth-Monocular-Metric-Depth-Estimation` appears to focus on metric monocular depth estimation using the UniDepth model in ONNX format.  \nIt likely goes beyond relative depth by targeting scale-aware predictions from a single image, making it especially relevant for applications that need more physically meaningful scene geometry.  \nFor PipeGen benchmarking, it adds another dense prediction workflow with modern ONNX deployment patterns and a different depth-estimation objective than MiDaS or stereo-based models.\n\n`ONNX-YOLOv8-Object-Detection` is an object detection project that uses YOLOv8 models exported to ONNX for streamlined deployment.  \nIt likely provides scripts for loading models, running inference on images or video, and drawing detections in a simple application-ready format.  \nFor benchmarking PipeGen, it serves as a representative detection repository with common modern CV patterns, fast inference expectations, and deployment-friendly model packaging.\n\n`Pose_Estimation` is a human pose estimation repository built around an ONNX model with keypoint and part-affinity-field decoding for multi-person skeletons.  \nIt supports running inference on images, videos, GIFs, or a live webcam stream, drawing limb connections and keypoints directly onto the output frames.  \nWithin the PipeGen benchmark collection, it adds a structured keypoint-prediction workload that differs from classification, detection, segmentation, and depth pipelines.\n\n`ppe-kit` detects personal protective equipment with `Tanishjain9/yolov8n-ppe-detection-6classes`, a YOLOv8n covering gloves, vest, goggles, helmet, mask, and safety_shoe at roughly 0.81 mAP@50.  \nInput is `images[1,3,640,640]` RGB letterboxed and scaled by 1/255; output `output0[1,10,8400]` is raw 4-box plus 6-class and needs transpose, confidence filter, and NMS.  \nFor PipeGen benchmarking, it contributes a compact edge-oriented safety-compliance detector, and its own README carries the full per-class metrics and dataset breakdown.\n\n`QueueLengthMonitoring` counts how many people stand inside a configurable queue polygon, filtering the YOLO11s COCO detector down to the person class.  \nQueue length here is the in-zone headcount that feeds an estimated-wait-time calculation; it does not infer queue order or fit a physical line shape, so a serpentine stanchion layout has to be described through `--zone-file`.  \nWithin the PipeGen benchmark collection, it is the simplest of the zone-rule retail workloads and a useful baseline against the dwell-time and checkout variants.\n\n`realsense_yolo_depth` is a live Intel RealSense + YOLOv8 fusion pipeline that grabs aligned color and Z16 depth frames from the camera, runs YOLOv8 ONNX object detection on the color image, and labels each detection box with the median metric depth sampled at its centre.  \nIt also overlays device metadata (name, serial, USB, firmware) and live accelerometer/gyroscope readings, reusing the YOLOv8 ONNX detector class from `ONNX-YOLOv8-Object-Detection` so only the depth-fusion and overlay logic are new.  \nWithin the PipeGen benchmark collection, it contributes a sensor-driven multi-modal pipeline that couples a RealSense source with neural detection and metric depth fusion, making it a good probe for orchestrating real hardware streams alongside ONNX inference.\n\n`ResNet-Image-Classification` looks like a straightforward image classification repository using a ResNet ONNX model and standard label mapping.  \nIt likely offers a compact inference entry point for classifying input images, making it a simple but useful benchmark for baseline computer vision pipelines.  \nWithin the PipeGen benchmark collection, it adds a classic classification workload that is easy to compare against lightweight or more modern architectures such as EfficientNet.\n\n`ResNet-Object-Detection` appears to be an object detection repository using a ResNet-based detection model, likely tailored for traffic or scene-specific inference.  \nIt seems well suited for benchmarking practical detection pipelines that rely on classic backbone-driven models rather than only the newest detector families.  \nFor PipeGen benchmarking, it contributes another detection example with pretrained model setup, application inference, and labeled visual outputs in a deployment-oriented structure.\n\n`RestrictedAreaMonitoring` treats any presence inside a marked danger zone as a security event, running the YOLO11s person detector, a SORT-style tracker, and a polygon membership test on every frame.  \nEach track resolves to CLEAR, IN ZONE, or INTRUSION! — the last after `--alert-frames` consecutive in-zone frames (default 2, enough to absorb a missed detection at the zone boundary) and reported with the seconds spent inside.  \nOmitting `--zone-file` makes the whole frame restricted, which suits a camera whose entire field of view is off-limits, such as a locked server room.\n\n`ShelfOccupancy` reports a continuous shelf fill percentage from `foduucom/product-detection-in-shelf-yolov8`, a two-class detector over empty and product.  \nOccupancy is the product box area divided by the combined product-plus-empty area, so it measures fill only across the shelf regions the model actually classified, not a segmentation of the whole surface.  \nThe model was trained on retail-cooler imagery and performs best on fridge and cooler shelves; its image loader is EXIF-aware because phone photos are commonly stored sideways.\n\n`SmokeDetection` runs `rabahdev/fire-smoke-yolov8n`, a YOLOv8n fine-tuned on the real-photograph D-Fire dataset over two classes, smoke and fire, with both surfaced since either is safety-critical.  \nA SORT-style tracker gives each detected region a persistent-ish ID so that `--alert-frames` consecutive detections are required before an alert fires, guarding against a single-frame false positive on a diffusing plume.  \nWithin the PipeGen benchmark collection, it contributes an environmental-hazard detection workload validated against both positive and clean-negative real imagery.\n\n`TheftDetection` uses `Nour190/shoplifting-yolo`, a YOLOv8s-Pose model with two classes, normal and shoplifting, tracked across frames with the same SORT-style IOU + Hungarian tracker used elsewhere in this collection.  \nAn alert requires `--alert-frames` consecutive shoplifting classifications on the same track, so per-frame classifier flicker does not fire it.  \nFor PipeGen benchmarking, it adds a pose-backbone behaviour classifier whose verdict is only meaningful as a run of frames rather than as a single detection.\n\n`UnsafeBehaviorDetection` detects smoking with `Enos-123/smoking-detection`, a single-class YOLO11m trained to find cigarettes.  \nInput is `images[1,3,640,640]` RGB letterboxed and scaled by 1/255; output `output0[1,5,8400]` is raw 4-box plus one class score and needs transpose, confidence filter, and NMS — every surviving detection is by definition the unsafe behaviour.  \nWithin the PipeGen benchmark collection, it contributes a small-object detection workload where the target occupies very few pixels relative to the person holding it.\n\n`VehicleDetection` runs Ultralytics' official COCO-pretrained YOLO11s through ONNX Runtime and counts the vehicle classes — bicycle, car, motorcycle, bus, train, truck, and boat.  \nEverything else in COCO-80 is still detected and drawn as a completeness check, but only the vehicle classes feed the count banner.  \nFor PipeGen benchmarking, it is the plain-detection baseline of this use-case group, sharing its `output0[1,84,8400]` decode contract with most of the retail and surveillance entries.\n\n`WorkerFallDetection` runs a YOLO11s-Pose ONNX export in the marcoslucianops DeepStream-Yolo-Pose layout, where the head output is transposed in-graph to `[1,8400,56]` — 4 box, 1 confidence, and 17 COCO keypoints of (x, y, visibility).  \nBox decode, objectness sigmoid, and keypoint pixel-space decode are all baked in by the Ultralytics Pose head at export time, so only single-class NMS is left for the application to do.  \nFalls are estimated from body orientation — a wide, short box plus a near-horizontal shoulder-to-hip line — which is a deliberately approximate single-frame heuristic, not a trained fall classifier.\n\n`yolo11n-instance-segmentation` appears to focus on instance segmentation using a compact YOLO11 segmentation model exported to ONNX.  \nIt likely supports running inference on images or video while producing both object-level detections and segmentation masks in a deployment-friendly workflow.  \nWithin the PipeGen benchmark suite, it adds a strong example of mask-based scene understanding that combines detection and segmentation in a single modern vision pipeline.\n\n`yolov8-multi-camera-input` is an object detection repository that runs a YOLOv8 ONNX model across six synchronized camera streams (front, front-left, front-right, back, back-left, back-right) in a single batched inference pass.  \nIt is well suited for autonomous-driving-style surround-view perception, where multiple video inputs must be processed together and annotated with detections in real time.  \nWithin the PipeGen benchmark collection, it contributes a multi-input batched detection workload that stresses pipeline orchestration across parallel video sources rather than a single image or video stream.\n\n`yolov8_pose_parallel` runs YOLOv8n object detection and YOLO11n-pose keypoint estimation concurrently on each frame via a `ThreadPoolExecutor(2)`, then overlays the detection boxes and the 17-keypoint COCO skeletons onto the same image with an FPS readout.  \nThe YOLOv8 wrapper reuses the `YOLOv8` class from `ONNX-YOLOv8-Object-Detection` (added to `sys.path`), while the pose head is a self-contained letterbox-and-decode port of the DeepStream `pose_render_cpu` reference, supporting webcam, video file, and headless `--output` recording paths.  \nWithin the PipeGen benchmark collection, it adds a focused two-model parallel pipeline that pairs detection with pose in a single per-frame fan-out, complementing the broader four-model `multi-model-perception-dashboard` with a smaller, more targeted concurrency example.\n",
+  "benchmark_subfolder": "ppe-kit",
+  "chat_history": [
+    {
+      "content": "Hi",
+      "role": "user"
+    },
+    {
+      "content": "Hi! What would you like the computer-vision pipeline to do?\n\nWhat should the pipeline do with them (detect, count, classify, segment, measure, ...)?\nA few details change how this is built; answer them below, or say proceed to keep the defaults.",
+      "role": "assistant"
+    },
+    {
+      "content": "What should the pipeline do? Build an AI Workplace Safety Sentinel computer-vision pipeline that processes a prerecorded factory or warehouse video. Detect people using a compatible pretrained YOLO model, track each person with persistent IDs, and monitor an editable restricted-zone polygon. Detect zone entry and exit, prolonged presence, and repeat entries. Generate timestamped incident records with track ID, event type, confidence, and severity. Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels. Save the annotated video and structured JSON incident logs. Reuse existing compatible PipeGen models and nodes, validate tensor shapes, model paths, and every graph connection, and prioritize a pipeline that executes successfully. Do not add unsupported PPE detection or incompatible TensorRT components. Report any missing dependency before execution.",
+      "role": "user"
+    },
+    {
+      "content": "I understood this as a single prerecorded-video safety pipeline with person detection and tracking, restricted-zone events, annotated video, and structured incident logs. I need the severity mapping for those events; the input path and output destinations are collected separately.\n\nA few details change how this is built; answer them below, or say proceed to keep the defaults.",
+      "role": "assistant"
+    },
+    {
+      "content": "Implement all six AI Workplace Safety Sentinel requirements: (1) person detection and persistent tracking IDs; (2) multiple safety hazard detection, including restricted-zone violations and PPE detection only when supported by a compatible model; (3) configurable zone entry/exit, dwell-time, and repeat-entry analytics; (4) timestamped incident logs with event type, severity, confidence, track ID, and evidence references; (5) measured FPS, inference latency, and processing time; and (6) an end-to-end annotated-video demonstration with verified JSON and video outputs.\n\nSeverity mapping: restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when actually detected by a compatible PPE model. Preserve existing compatible components, validate the complete graph and model/runtime compatibility, and prioritize successful execution.",
+      "role": "user"
+    },
+    {
+      "content": "I understood the updated requirements as adding conditional PPE-violation detection, severity and evidence details in incident records, a 60-second repeat-entry window, and measured performance metrics. I’ve recorded these while keeping PPE detection conditional on a compatible model.\n\nCheck the inputs below and confirm them.\n\nKept the timestamped incident records step's settings as its task has them: they come from its method and details; say what to change.",
+      "role": "assistant"
+    },
+    {
+      "content": "Inputs: input1 · prerecorded factory or warehouse video · Video file · bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4",
+      "role": "user"
+    },
+    {
+      "content": "Inputs confirmed: 1.\n\nOutputs taken from your description: out1 · saved_video · url /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/output.mp4; out2 · metadata_file · url /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json. Say **review outputs** to change them on a card.\n\nI’ve recorded the video input; please clarify these scene and privacy details.\n\nA few questions about the scene and camera below: Continue applies what the card shows, Skip adds no step.",
+      "role": "assistant"
+    },
+    {
+      "content": "Scene and camera: How is the light? Changes day/night · Does this camera move? Fixed · Hide before saving or sending? Nothing · How big are the targets? Not sure",
+      "role": "user"
+    },
+    {
+      "content": "Added from the scene: CLAHE before people detection, PPE violation detection, runtime performance metrics on input1, only on dark frames (you answered Changes day/night; brightness changes a lot: the median runs from 0.00 in the darkest moment to 0.44 in the brightest. About 33% of the moments looked at are dark (median under 0.22)) · catalogue §3 Scene · Darkness. The corrected picture is also what the saved video shows.\n\nNot added: Adaptive normalisation on input1, because it follows the light over time, which needs memory between frames; the dark-frame fix switches itself on and off per frame instead.\n\nAt the camera (you): an IR light or IR-cut switch; for light that is always low, fix exposure and gain and turn off exposure priority.\n\nAt the camera (you): keep auto-exposure on with a capped maximum and exposure priority off; never lock exposure.\n\nDraft v1: **1 input(s)** → **PPE violation detection, people detection, person tracking, prolonged-presence events, repeat-entry events, restricted-zone entry/exit events, runtime performance metrics, safety incident video annotation, timestamped incident records** (+1 from the scene) → **saved_video, metadata_file**. Correct it here, or press **Finalize flow**.",
+      "role": "assistant"
+    },
+    {
+      "content": "finalize the flow",
+      "role": "user"
+    },
+    {
+      "content": "Flow locked. Now the details, one task at a time: 9 of 9 to go.\n\nPeople detection remains model-based using compatible pretrained YOLO and existing PipeGen components, with validation and missing-dependency reporting before execution. Unsupported PPE detection and incompatible TensorRT components are excluded.\n\n**people detection on input1 (prerecorded factory or warehouse video)** done. Next: **PPE violation detection on input1 (prerecorded factory or warehouse video)**.\n\nPPE detection is conditional on a compatible model, but the specific violations to flag aren’t defined. Please specify which missing or improperly worn PPE should count as a violation.",
+      "role": "assistant"
+    },
+    {
+      "content": "PPE violation detection on input1 (prerecorded factory or warehouse video): Which missing or improperly worn PPE conditions should be reported as violations? Flag missing safety helmets and missing reflective high-visibility vests. Only report violations when a compatible PPE detection model is available; never infer missing PPE from a person-only detector. Include the person's tracking ID, timestamp, confidence, and evidence frame in the incident record.",
+      "role": "user"
+    },
+    {
+      "content": "Updated PPE violations to cover missing safety helmets and reflective high-visibility vests only when a compatible PPE model is available; person-only detections will not be used to infer missing PPE. Incident records will include the person’s tracking ID, timestamp, confidence, and an evidence frame.\n\n**PPE violation detection on input1 (prerecorded factory or warehouse video)** done. Next: **runtime performance metrics on input1 (prerecorded factory or warehouse video)**.\n\nRuntime performance metrics are set to report FPS, inference latency, and processing time in the structured JSON output.\n\n**runtime performance metrics on input1 (prerecorded factory or warehouse video)** done. Next: **person tracking on input1 (prerecorded factory or warehouse video)**.\n\nPerson tracking is settled: follow each detected person over time and assign persistent IDs. No additional tracking settings are needed.\n\n**person tracking on input1 (prerecorded factory or warehouse video)** done. Next: **restricted-zone entry/exit events on input1 (prerecorded factory or warehouse video)**.\n\nI’ve recorded entry and exit events from each tracked person’s crossing of the editable zone boundary. Which area of the frame should the restricted-zone polygon cover?",
+      "role": "assistant"
+    },
+    {
+      "content": "restricted-zone entry/exit events on input1 (prerecorded factory or warehouse video): Describe the restricted-zone polygon’s location in the video frame, or identify the area to configure as the editable zone. Configure an editable polygon over the clearly visible restricted-access area in the video, such as the marked or barricaded zone. If no marked zone is visible, use a clearly defined area near restricted machinery or a safety barrier. Track each person's entry and exit using their persistent tracking ID, timestamp, and evidence frame. Keep the polygon editable for adjustment during testing.",
+      "role": "user"
+    },
+    {
+      "content": "The editable zone will cover the visible marked or barricaded restricted-access area, with a fallback near restricted machinery or a safety barrier. Entry and exit events will retain each person’s tracking ID, timestamp, and evidence frame.\n\n**restricted-zone entry/exit events on input1 (prerecorded factory or warehouse video)** done. Next: **prolonged-presence events on input1 (prerecorded factory or warehouse video)**.\n\nThe prolonged-presence event is based on in-zone dwell time and is assigned CRITICAL severity. How many seconds must a person remain in the restricted zone before the event fires?",
+      "role": "assistant"
+    },
+    {
+      "content": "prolonged-presence events on input1 (prerecorded factory or warehouse video): How many seconds must a person remain in the restricted zone before the event fires? 30 seconds",
+      "role": "user"
+    },
+    {
+      "content": "The prolonged-presence event fires after a person remains in the restricted zone for 30 seconds and is assigned CRITICAL severity.\n\n**prolonged-presence events on input1 (prerecorded factory or warehouse video)** done. Next: **repeat-entry events on input1 (prerecorded factory or warehouse video)**.\n\nThe repeat-entry window is set to 60 seconds. I need the entry count that should trigger the event.",
+      "role": "assistant"
+    },
+    {
+      "content": "repeat-entry events on input1 (prerecorded factory or warehouse video): How many entries within the 60-second window should trigger a repeat-entry event? 3 entries",
+      "role": "user"
+    },
+    {
+      "content": "The repeat-entry event will fire when a person enters the restricted zone 3 times within 60 seconds and will be assigned HIGH severity.\n\n**repeat-entry events on input1 (prerecorded factory or warehouse video)** done. Next: **timestamped incident records on input1 (prerecorded factory or warehouse video)**.\n\nThe repeat-entry event uses a 60-second window. I need the entry count that should trigger it.",
+      "role": "assistant"
+    },
+    {
+      "content": "timestamped incident records on input1 (prerecorded factory or warehouse video): How many entries within the 60-second window should trigger a repeat-entry event? 3 entries",
+      "role": "user"
+    },
+    {
+      "content": "The repeat-entry threshold is already set to 3 entries within 60 seconds. Timestamped incident records will include the specified event details, severity, evidence frame references, and performance metrics.\n\n**timestamped incident records on input1 (prerecorded factory or warehouse video)** done. Next: **safety incident video annotation on input1 (prerecorded factory or warehouse video)**.\n\nThe video annotation will show person boxes and tracking IDs, the restricted-zone boundary, dwell timers, and incident labels; PPE violations are shown only when detected by a compatible model. It will use the corresponding detection, tracking, event, and incident-record results.\n\nAll tasks are detailed. This is the final flow with your conditions; continue to sources, or change something.",
+      "role": "assistant"
+    },
+    {
+      "content": "continue to sources",
+      "role": "user"
+    },
+    {
+      "content": "Code for people detection on input1 (prerecorded factory or warehouse video) · PPE violation detection on input1 (prerecorded factory or warehouse video): choose a local repository folder or model file, or the catalog, for each task below, or paste a path here.",
+      "role": "assistant"
+    },
+    {
+      "content": "people detection on input1 (prerecorded factory or warehouse video) → local /home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx; PPE violation detection on input1 (prerecorded factory or warehouse video) → catalog",
+      "role": "user"
+    },
+    {
+      "content": "- **src1** · RestrictedAreaMonitoring → people detection on input1 (prerecorded factory or warehouse video) · `application.py` · `yolo11s.onnx` (scanned)\n\nCatalog matches for PPE violation detection on input1 (prerecorded factory or warehouse video). Suggested: **A** covers all 1 task(s). Tick the ones to use, or paste a local path.",
+      "role": "assistant"
+    },
+    {
+      "content": "A",
+      "role": "user"
+    },
+    {
+      "content": "- **src2** · ppe-kit → PPE violation detection on input1 (prerecorded factory or warehouse video) · `application.py` · `best.onnx` (scanned)\n\n1 of 25 checks need a fix:\n- ✗ src2 does not support missing safety helmets (ONNX metadata and application.py identify a six-class PPE object detector with raw box and class outputs. Its labels describe detected items, not their absence or person-level compliance.), missing reflective high-visibility vests (ONNX metadata and application.py identify a six-class PPE object detector with raw box and class outputs. The Vest label does not establish reflective/high-visibility attributes or indicate absence.) for PPE violation detection@input1.\n\nPaste a repository that supports those targets, run a deep search for one, or say \"use it anyway\" to keep this one.",
+      "role": "assistant"
+    },
+    {
+      "content": "/home/areefjeevan/.pipegen/deep_search/rased-360__rased-real-time-workplace-safety-monitoring-system/repo/best.onnx",
+      "role": "user"
+    },
+    {
+      "content": "Replaced **src2**.\n\nI could not find a folder or model file at `/home/areefjeevan/.pipegen/deep_search/rased-360__rased-real-time-workplace-safety-monitoring-system/repo/best.onnx`. Check the path and paste it again.",
+      "role": "assistant"
+    },
+    {
+      "content": "use it anyway",
+      "role": "user"
+    },
+    {
+      "content": "- **src1** · RestrictedAreaMonitoring now also covers PPE violation detection on input1 (prerecorded factory or warehouse video).\n\n1 of 22 checks need a fix:\n- ✗ src1 does not support missing safety helmets (application.py specifies a COCO-pretrained YOLO11s detector with 80 COCO classes. The selected model metadata lists those classes and includes neither safety helmets nor a missing-helmet attribute; the source explicitly describes this model as a person detector, not PPE detection.), missing reflective high-visibility vests (application.py specifies a COCO-pretrained YOLO11s detector with 80 COCO classes. The selected model metadata lists those classes and includes neither high-visibility vests nor a missing-vest attribute; the source explicitly describes this model as a person detector, not PPE detection.) for PPE violation detection@input1.\n\nPaste a repository that supports those targets, run a deep search for one, or say \"use it anyway\" to keep this one.",
+      "role": "assistant"
+    },
+    {
+      "content": "use it anyway",
+      "role": "user"
+    },
+    {
+      "content": "All 21 requirement checks pass.\n- **src1** RestrictedAreaMonitoring → people detection on input1 (prerecorded factory or warehouse video) · PPE violation detection on input1 (prerecorded factory or warehouse video)\n\nPress **Generate PIR** to build the pipeline graph. You can still change anything here first.",
+      "role": "assistant"
+    },
+    {
+      "content": "Confirm the exact ONNX filename and source path for Model 2 of 2. It must be the PPE model best.onnx, not yolo11s.onnx. Do not compile until the model identity is confirmed.",
+      "role": "user"
+    },
+    {
+      "content": "The registered src1 command uses model/yolo11s.onnx; the PPE model best.onnx path has not been confirmed.\n\nWhat exact existing path should Model 2 use for best.onnx?",
+      "role": "assistant"
+    },
+    {
+      "content": "home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/best.onnx",
+      "role": "user"
+    },
+    {
+      "content": "Recorded the supplied `best.onnx` path for Model 2; compilation has not been started.\n\n1 of 22 checks need a fix:\n- ✗ src1 does not support missing safety helmets (The selected model is COCO-pretrained and its 80-class names in the model metadata and application.py include person but no helmet or PPE status. The task details explicitly prohibit inferring missing PPE from a person-only detector.), missing reflective high-visibility vests (The selected model is COCO-pretrained and its 80-class names in the model metadata and application.py include person but no vest or PPE status. The task details explicitly prohibit inferring missing PPE from a person-only detector.) for PPE violation detection@input1.\n\nPaste a repository that supports those targets, run a deep search for one, or say \"use it anyway\" to keep this one.",
+      "role": "assistant"
+    },
+    {
+      "content": "Add model best.onnx located at /home/areefjeevan/Downloads/pipegen/best.onnx for PPE violation detection",
+      "role": "user"
+    },
+    {
+      "content": "Replaced **src1**.\n\nI could not find a folder or model file at `/home/areefjeevan/Downloads/pipegen/best.onnx`. Check the path and paste it again.",
+      "role": "assistant"
+    },
+    {
+      "content": "Add model best.onnx located at /home/areefjeevan/Downloads/pipegen/best.onnx for PPE violation detection",
+      "role": "user"
+    },
+    {
+      "content": "I could not find a folder or model file at `/home/areefjeevan/Downloads/pipegen/best.onnx`. Check the path and paste it again.",
+      "role": "assistant"
+    },
+    {
+      "content": "areefjeevan@JPLOQ:/mnt/c/Users/jeeva$ python3 -m pip install ultralytics onnx && python3 -c \"from ultralytics import YOLO; YOLO('/home/areefjeevan/Downloads/pipegen/best.pt').export(format='onnx')\"\nerror: externally-managed-environment\n\n× This environment is externally managed\n╰─> To install Python packages system-wide, try apt install\n    python3-xyz, where xyz is the package you are trying to\n    install.\n\n    If you wish to install a non-Debian-packaged Python package,\n    create a virtual environment using python3 -m venv path/to/venv.\n    Then use path/to/venv/bin/python and path/to/venv/bin/pip. Make\n    sure you have python3-full installed.\n\n    If you wish to install a non-Debian packaged Python application,\n    it may be easiest to use pipx install xyz, which will manage a\n    virtual environment for you. Make sure you have pipx installed.\n\n    See /usr/share/doc/python3.14/README.venv for more information.\n\nnote: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.\nhint: See PEP 668 for the detailed specification.",
+      "role": "user"
+    },
+    {
+      "content": "- /home/areefjeevan/Downloads/pipegen/best.pt is a .pt model, which the pipeline cannot run as it is. Export it to one of ONNX (.onnx), TensorRT engine (.engine), TensorRT plan (.plan) and give that file, or give the repository folder instead. No other model was put in its place.\n\nCode for people detection on input1 (prerecorded factory or warehouse video) · PPE violation detection on input1 (prerecorded factory or warehouse video): choose a local repository folder or model file, or the catalog, for each task below, or paste a path here.",
+      "role": "assistant"
+    },
+    {
+      "content": "use \\home\\areefjeevan\\.pipegen\\areef67890srec\\491bfc2a-a12b-492f-929c-65e4e205be1c\\src2\\RestrictedAreaMonitoring\\model",
+      "role": "user"
+    },
+    {
+      "content": "I could not find a folder or model file at `\\home\\areefjeevan\\.pipegen\\areef67890srec\\491bfc2a-a12b-492f-929c-65e4e205be1c\\src2\\RestrictedAreaMonitoring\\model`. Check the path and paste it again.",
+      "role": "assistant"
+    },
+    {
+      "content": "people detection on input1 (prerecorded factory or warehouse video) → local /home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onn; PPE violation detection on input1 (prerecorded factory or warehouse video) → local /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx · precision FP32",
+      "role": "user"
+    },
+    {
+      "content": "Some sources need a fix; see the card.",
+      "role": "assistant"
+    },
+    {
+      "content": "people detection on input1 (prerecorded factory or warehouse video) → local /home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx; PPE violation detection on input1 (prerecorded factory or warehouse video) → local /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx · precision FP32",
+      "role": "user"
+    },
+    {
+      "content": "- **src1** · RestrictedAreaMonitoring → people detection on input1 (prerecorded factory or warehouse video) · `application.py` · `yolo11s.onnx` (cached)\n- **src2** · ppe-kit → PPE violation detection on input1 (prerecorded factory or warehouse video) · `application.py` · `best.onnx` (scan cached)\n\n1 of 25 checks need a fix:\n- ✗ src2 does not support missing safety helmets (The model and application identify positive PPE detections such as helmet. Neither provides person-to-PPE association or a decoder that infers missing equipment.), missing reflective high-visibility vests (The model and application identify positive PPE detections such as Vest. They do not determine whether a person is missing a vest or whether a vest is reflective/high-visibility.) for PPE violation detection@input1.\n\nPaste a repository that supports those targets, run a deep search for one, or say \"use it anyway\" to keep this one.",
+      "role": "assistant"
+    },
+    {
+      "content": "use it anyway",
+      "role": "user"
+    },
+    {
+      "content": "All 24 requirement checks pass.\n- **src1** RestrictedAreaMonitoring → people detection on input1 (prerecorded factory or warehouse video)\n- **src2** ppe-kit → PPE violation detection on input1 (prerecorded factory or warehouse video)\n\nPress **Generate PIR** to build the pipeline graph. You can still change anything here first.",
+      "role": "assistant"
+    }
+  ],
+  "chat_name": "Workplace Safety Zone Monitoring",
+  "checks": {
+    "failed": 0,
+    "groups": [
+      {
+        "failed": 0,
+        "name": "Inputs",
+        "passed": 1,
+        "warned": 0
+      },
+      {
+        "failed": 0,
+        "name": "Tasks",
+        "passed": 12,
+        "warned": 0
+      },
+      {
+        "failed": 0,
+        "name": "Sources",
+        "passed": 7,
+        "warned": 0
+      },
+      {
+        "failed": 0,
+        "name": "Outputs",
+        "passed": 2,
+        "warned": 0
+      },
+      {
+        "failed": 0,
+        "name": "Handoff",
+        "passed": 2,
+        "warned": 0
+      }
+    ],
+    "passed": true,
+    "results": [
+      {
+        "fix": null,
+        "group": "Inputs",
+        "id": "input.input1",
+        "message": "input1: /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 (1920x1080 · 60.0)",
+        "name": "input1 file",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Sources",
+        "id": "classes.src1.people detection@input1",
+        "message": "src1 supports people → person for people detection@input1.",
+        "name": "people detection@input1 capabilities",
+        "status": "pass"
+      },
+      {
+        "fix": "sources",
+        "group": "Tasks",
+        "id": "tasks.covered",
+        "message": "All tasks are covered.",
+        "name": "every task has a source",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.1.input",
+        "message": "people detection runs on input1",
+        "name": "people detection input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.2.input",
+        "message": "PPE violation detection runs on input1",
+        "name": "PPE violation detection input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.3.input",
+        "message": "runtime performance metrics runs on input1",
+        "name": "runtime performance metrics input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.4.input",
+        "message": "person tracking runs on input1",
+        "name": "person tracking input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.5.input",
+        "message": "restricted-zone entry/exit events runs on input1",
+        "name": "restricted-zone entry/exit events input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.6.input",
+        "message": "prolonged-presence events runs on input1",
+        "name": "prolonged-presence events input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.7.input",
+        "message": "repeat-entry events runs on input1",
+        "name": "repeat-entry events input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.8.input",
+        "message": "timestamped incident records runs on input1",
+        "name": "timestamped incident records input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "task.9.input",
+        "message": "safety incident video annotation runs on input1",
+        "name": "safety incident video annotation input",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Sources",
+        "id": "source.src1.root",
+        "message": "src1: /home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring",
+        "name": "src1 folder",
+        "status": "pass"
+      },
+      {
+        "fix": "reanalyse",
+        "group": "Sources",
+        "id": "source.src1.entry",
+        "message": "src1: `python application.py --input /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 --model model/yolo11s.onnx` → application.py",
+        "name": "src1 run command",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Sources",
+        "id": "source.src1.model.yolo11s.onnx",
+        "message": "src1: yolo11s.onnx reads fine.",
+        "name": "src1 model yolo11s.onnx",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Sources",
+        "id": "source.src2.root",
+        "message": "src2: /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit",
+        "name": "src2 folder",
+        "status": "pass"
+      },
+      {
+        "fix": "reanalyse",
+        "group": "Sources",
+        "id": "source.src2.entry",
+        "message": "src2: `python application.py /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4` → application.py",
+        "name": "src2 run command",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Sources",
+        "id": "source.src2.model.best.onnx",
+        "message": "src2: best.onnx reads fine.",
+        "name": "src2 model best.onnx",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Outputs",
+        "id": "output.out1.destination",
+        "message": "out1: saved_video → /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/output.mp4",
+        "name": "out1 destination",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Outputs",
+        "id": "output.out2.destination",
+        "message": "out2: metadata_file → /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json",
+        "name": "out2 destination",
+        "status": "pass"
+      },
+      {
+        "fix": "ask",
+        "group": "Tasks",
+        "id": "algorithm.8",
+        "message": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/scene_steps/frame_conditioning_11bbafe058.py",
+        "name": "custom step 8 reference",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Tasks",
+        "id": "scene.step.8",
+        "message": "CLAHE: pre_pgie, for people detection@input1, PPE violation detection@input1, runtime performance metrics@input1.",
+        "name": "CLAHE placement",
+        "status": "pass"
+      },
+      {
+        "fix": "ask",
+        "group": "Handoff",
+        "id": "contract",
+        "message": "3 task(s), 2 source(s), 2 model(s).",
+        "name": "handoff contract",
+        "status": "pass"
+      },
+      {
+        "fix": null,
+        "group": "Handoff",
+        "id": "pir.readiness",
+        "message": "The PIR stage can start from the captured evidence.",
+        "name": "PIR readiness",
+        "status": "pass"
+      }
+    ],
+    "version": 6,
+    "warned": 0
+  },
+  "class_waivers": [
+    "classes.src2.PPE violation detection@input1"
+  ],
+  "clone_base_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082",
+  "clone_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit",
+  "delivered_references": {
+    "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/scene_steps/frame_conditioning_11bbafe058.py": "1792423422431988726"
+  },
+  "flow_draft": {
+    "connections": [
+      {
+        "from": "task:people detection@input1",
+        "to": "task:person tracking@input1"
+      },
+      {
+        "from": "task:person tracking@input1",
+        "to": "task:restricted-zone entry/exit events@input1"
+      },
+      {
+        "from": "task:person tracking@input1",
+        "to": "task:prolonged-presence events@input1"
+      },
+      {
+        "from": "task:person tracking@input1",
+        "to": "task:repeat-entry events@input1"
+      },
+      {
+        "from": "task:restricted-zone entry/exit events@input1",
+        "to": "task:timestamped incident records@input1"
+      },
+      {
+        "from": "task:prolonged-presence events@input1",
+        "to": "task:timestamped incident records@input1"
+      },
+      {
+        "from": "task:repeat-entry events@input1",
+        "to": "task:timestamped incident records@input1"
+      },
+      {
+        "from": "task:PPE violation detection@input1",
+        "to": "task:timestamped incident records@input1"
+      },
+      {
+        "from": "task:people detection@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "task:person tracking@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "task:restricted-zone entry/exit events@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "task:prolonged-presence events@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "task:repeat-entry events@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "task:PPE violation detection@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "task:timestamped incident records@input1",
+        "to": "task:safety incident video annotation@input1"
+      },
+      {
+        "from": "input1",
+        "to": "logic:8"
+      },
+      {
+        "from": "logic:8",
+        "to": "task:people detection@input1"
+      },
+      {
+        "from": "logic:8",
+        "to": "task:PPE violation detection@input1"
+      },
+      {
+        "from": "logic:8",
+        "to": "task:runtime performance metrics@input1"
+      },
+      {
+        "from": "task:runtime performance metrics@input1",
+        "to": "out1"
+      },
+      {
+        "from": "task:safety incident video annotation@input1",
+        "to": "out1"
+      },
+      {
+        "from": "task:runtime performance metrics@input1",
+        "to": "out2"
+      },
+      {
+        "from": "task:safety incident video annotation@input1",
+        "to": "out2"
+      }
+    ],
+    "finalized": true,
+    "label": "Final flow · with your conditions",
+    "nodes": [
+      {
+        "id": "input1",
+        "kind": "input",
+        "name": "input1 · prerecorded factory or warehouse video",
+        "short_description": "video file · bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 · 1920x1080"
+      },
+      {
+        "id": "task:people detection@input1",
+        "kind": "task",
+        "name": "people detection",
+        "short_description": "targets: people · Use a compatible pretrained YOLO model and existing compatible PipeGen models and nodes. Do not add unsupported PPE detection or incompatible TensorRT components. Validate tensor shapes, model paths, and graph connections; report missing dependencies before execution. Prioritize a pipeline that executes successfully."
+      },
+      {
+        "id": "task:PPE violation detection@input1",
+        "kind": "task",
+        "name": "PPE violation detection",
+        "short_description": "targets: missing safety helmets, missing reflective high-visibility vests · Detect missing safety helmets and missing reflective high-visibility vests only if a compatible PPE model is available. Use Model 2 at the supplied existing path `home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/best.onnx`. Never infer missing PPE from a person-only detector. Do not add unsupported PPE detection; report missing model dependencies before execution. Assign HIGH severity only for violations actually detected by a compatible model."
+      },
+      {
+        "id": "task:runtime performance metrics@input1",
+        "kind": "task",
+        "name": "runtime performance metrics",
+        "short_description": "Measure and report FPS, inference latency, and processing time in the structured JSON output."
+      },
+      {
+        "id": "task:person tracking@input1",
+        "kind": "task",
+        "name": "person tracking",
+        "short_description": "method: persistent-ID multi-object tracking (you said “track each person with persistent IDs”) · targets: people · Track each detected person with persistent IDs."
+      },
+      {
+        "id": "task:restricted-zone entry/exit events@input1",
+        "kind": "task",
+        "name": "restricted-zone entry/exit events",
+        "short_description": "method: restricted-zone polygon boundary crossing (you said “monitor an editable restricted-zone polygon. Detect zone entry and exit”) · targets: people · Detect each tracked person's entry into and exit from an editable restricted-zone polygon by boundary crossing. Configure the polygon over the clearly visible restricted-access area, such as a marked or barricaded zone; if none is visible, use a clearly defined area near restricted machinery or a safety barrier. Keep the polygon editable for adjustment during testing. Record each event with the person's persistent tracking ID, timestamp, and evidence frame."
+      },
+      {
+        "id": "task:prolonged-presence events@input1",
+        "kind": "task",
+        "name": "prolonged-presence events",
+        "short_description": "method: in-zone dwell time (assumed; say to change) · targets: people · Detect prolonged presence after a person remains within the restricted zone for 30 seconds. Assign CRITICAL severity when the threshold is reached."
+      },
+      {
+        "id": "task:repeat-entry events@input1",
+        "kind": "task",
+        "name": "repeat-entry events",
+        "short_description": "method: repeated restricted-zone entries (assumed; say to change) · targets: people · Detect a repeat-entry event when a person enters the restricted zone 3 times within a 60-second window. Assign HIGH severity."
+      },
+      {
+        "id": "task:timestamped incident records@input1",
+        "kind": "task",
+        "name": "timestamped incident records",
+        "short_description": "method: incident event record assembly (you said “Generate timestamped incident records with track ID, event type, confidence, and severity”) · targets: people · Generate structured JSON incident records containing timestamp, track ID, event type, confidence, severity, and evidence references including an evidence frame. Severity mapping: restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when detected by a compatible PPE model. Include measured FPS, inference latency, and processing time in the JSON output."
+      },
+      {
+        "id": "task:safety incident video annotation@input1",
+        "kind": "task",
+        "name": "safety incident video annotation",
+        "short_description": "method: video overlay rendering (you said “Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels”) · targets: people · Annotate the video with person bounding boxes, persistent tracking IDs, the restricted-zone boundary, dwell timers, and incident labels. Show PPE violations only when detected by a compatible PPE model; do not infer them from person detections."
+      },
+      {
+        "id": "logic:8",
+        "kind": "logic",
+        "name": "CLAHE",
+        "placement": "pre_pgie",
+        "short_description": "Local contrast, without blowing out bright areas. Runs before the model, only on dark frames."
+      },
+      {
+        "id": "out1",
+        "kind": "output",
+        "name": "out1 · saved_video",
+        "short_description": "saved_video · url /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/output.mp4"
+      },
+      {
+        "id": "out2",
+        "kind": "output",
+        "name": "out2 · metadata_file",
+        "short_description": "metadata_file · url /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json"
+      }
+    ],
+    "version": 3
+  },
+  "form_seq": 13,
+  "is_benchmark": true,
+  "mode": "deep_search",
+  "pending_deep_search_choice": {
+    "clone_dir": "/home/areefjeevan/.pipegen/deep_search/rased-360__rased-real-time-workplace-safety-monitoring-system/repo",
+    "repo": {
+      "clone_url": "https://github.com/rased-360/RaSed-Real-Time-Workplace-Safety-Monitoring-System.git",
+      "default_branch": "main",
+      "description": "📷 An AI-powered real-time workplace safety monitoring system using TensorRT-optimized YOLO models for fire, smoke, PPE detection, and person tracking.",
+      "full_name": "rased-360/RaSed-Real-Time-Workplace-Safety-Monitoring-System",
+      "html_url": "https://github.com/rased-360/RaSed-Real-Time-Workplace-Safety-Monitoring-System",
+      "language": "Python",
+      "pushed_at": "2026-06-27T12:33:02Z",
+      "rationale": "Broad workplace-safety pipeline with YOLO-based PPE and person tracking, plus TensorRT optimization relevant to measuring inference performance.",
+      "stargazers_count": 0,
+      "topics": []
+    }
+  },
+  "pending_form": {},
+  "pending_source": {},
+  "phase": "complete",
+  "pipeline_information": {
+    "model_paths": [
+      "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+    ],
+    "pipeline_command": "python application.py --input /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 --model model/yolo11s.onnx",
+    "project_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring"
+  },
+  "pipeline_requirements": {
+    "extras": {
+      "compile": {
+        "precision": "fp32"
+      },
+      "input_roles": {
+        "input1": "prerecorded factory or warehouse video"
+      },
+      "scene_step": {
+        "advice": [
+          {
+            "cue": "low_light_after_dark",
+            "input": "input1",
+            "text": "At the camera: an IR light or IR-cut switch; for light that is always low, fix exposure and gain and turn off exposure priority."
+          },
+          {
+            "cue": "lighting_variable",
+            "input": "input1",
+            "text": "At the camera: keep auto-exposure on with a capped maximum and exposure priority off; never lock exposure."
+          }
+        ],
+        "answered": {
+          "light__input1": "variable",
+          "motion__input1": "fixed",
+          "privacy__input1": [
+            "nothing"
+          ],
+          "size__input1": "not_sure"
+        },
+        "declined": [],
+        "inputs": {
+          "input1": {
+            "basis": {
+              "asks": [
+                "privacy"
+              ],
+              "kind": "video file",
+              "mtime": 1792422468.2313437,
+              "size": 85395187,
+              "tasks": [
+                "people detection@input1",
+                "PPE violation detection@input1",
+                "runtime performance metrics@input1"
+              ],
+              "url": "/home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4"
+            },
+            "cues": [
+              "low_light_after_dark",
+              "lighting_variable",
+              "camera_fixed"
+            ],
+            "duty": {
+              "colour_cast": 0.417,
+              "dock_daylight": 0.0,
+              "haze": 0.417,
+              "low_light_after_dark": 0.583
+            },
+            "evidence": [
+              "Brightness changes a lot: the median runs from 0.00 in the darkest moment to 0.44 in the brightest.",
+              "About 33% of the moments looked at are dark (median under 0.22).",
+              "The view holds still between frames, so the camera looks fixed."
+            ],
+            "footage": {
+              "chroma_offset": 0.024,
+              "clipped_fraction": 0.003,
+              "dark_fraction": 0.246,
+              "fps": 60.0,
+              "frames": 9181,
+              "height": 1080,
+              "mean_chroma": 7.5,
+              "motion": "fixed",
+              "noise": 0.15,
+              "p50": 0.284,
+              "rms_contrast": 0.183,
+              "rules": [],
+              "samples": 12,
+              "source": "video file",
+              "suggest": [
+                "low_light_after_dark",
+                "lighting_variable"
+              ],
+              "width": 1920
+            },
+            "said": {},
+            "skipped": false
+          }
+        },
+        "ledger": [
+          "CLAHE@input1"
+        ],
+        "needs": [],
+        "privacy_source": [
+          {
+            "boxes": "person",
+            "input": "input1",
+            "task": "people detection"
+          }
+        ],
+        "rules": {
+          "camera_angled": [],
+          "camera_fixed": [
+            "input1"
+          ],
+          "camera_moving": [],
+          "camera_shakes": [],
+          "motion_unknown": [],
+          "no_cloud": [],
+          "privacy": [],
+          "small_objects": [],
+          "store_events_only": []
+        },
+        "version": 1
+      }
+    },
+    "inputs": [
+      {
+        "data_kind": [
+          "frames"
+        ],
+        "fps": 60.0,
+        "id": "input1",
+        "resolution": "1920x1080",
+        "role": "prerecorded factory or warehouse video",
+        "type": "video file",
+        "url": "/home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4"
+      }
+    ],
+    "needs_model": null,
+    "outputs": [
+      {
+        "id": "out1",
+        "type": "saved_video",
+        "url": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/output.mp4"
+      },
+      {
+        "id": "out2",
+        "type": "metadata_file",
+        "url": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json"
+      }
+    ],
+    "parallel": false,
+    "special_algorithms": [
+      {
+        "applies_to": [
+          "people detection@input1"
+        ],
+        "category": "tracking",
+        "confirmed": true,
+        "description": "Track each detected person with persistent IDs.",
+        "name": "person tracking",
+        "parameters": {
+          "method": "persistent-ID multi-object tracking"
+        },
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "person tracking@input1"
+        ],
+        "category": "gating",
+        "confirmed": true,
+        "description": "Detect each tracked person's entry into and exit from an editable restricted-zone polygon by boundary crossing. Configure the polygon over the clearly visible restricted-access area, such as a marked or barricaded zone; if none is visible, use a clearly defined area near restricted machinery or a safety barrier. Keep the polygon editable for adjustment during testing. Record each event with the person's persistent tracking ID, timestamp, and evidence frame.",
+        "name": "restricted-zone entry/exit events",
+        "parameters": {
+          "editable": true,
+          "method": "restricted-zone polygon boundary crossing",
+          "zone_definition": "Editable polygon over the clearly visible marked or barricaded restricted-access area; if none is visible, use a clearly defined area near restricted machinery or a safety barrier."
+        },
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "person tracking@input1"
+        ],
+        "category": "other",
+        "confirmed": true,
+        "description": "Detect prolonged presence after a person remains within the restricted zone for 30 seconds. Assign CRITICAL severity when the threshold is reached.",
+        "name": "prolonged-presence events",
+        "parameters": {
+          "duration_seconds": 30,
+          "method": "in-zone dwell time"
+        },
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "person tracking@input1"
+        ],
+        "category": "other",
+        "confirmed": true,
+        "description": "Detect a repeat-entry event when a person enters the restricted zone 3 times within a 60-second window. Assign HIGH severity.",
+        "name": "repeat-entry events",
+        "parameters": {
+          "entry_count": 3,
+          "method": "repeated restricted-zone entries",
+          "window_seconds": 60
+        },
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "restricted-zone entry/exit events@input1",
+          "prolonged-presence events@input1",
+          "repeat-entry events@input1",
+          "PPE violation detection@input1"
+        ],
+        "category": "other",
+        "confirmed": true,
+        "description": "Generate structured JSON incident records containing timestamp, track ID, event type, confidence, severity, and evidence references including an evidence frame. Severity mapping: restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when detected by a compatible PPE model. Include measured FPS, inference latency, and processing time in the JSON output.",
+        "name": "timestamped incident records",
+        "parameters": {
+          "method": "incident event record assembly",
+          "severity_mapping": {
+            "normal_exit": "LOW",
+            "ppe_violation_when_detected_by_a_compati": "HIGH",
+            "prolonged_presence_beyond_configured_thr": "CRITICAL",
+            "repeat_entry_within_60_seconds": "HIGH",
+            "restricted_zone_entry": "HIGH"
+          }
+        },
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "people detection@input1",
+          "person tracking@input1",
+          "restricted-zone entry/exit events@input1",
+          "prolonged-presence events@input1",
+          "repeat-entry events@input1",
+          "PPE violation detection@input1",
+          "timestamped incident records@input1"
+        ],
+        "category": "other",
+        "confirmed": true,
+        "description": "Annotate the video with person bounding boxes, persistent tracking IDs, the restricted-zone boundary, dwell timers, and incident labels. Show PPE violations only when detected by a compatible PPE model; do not infer them from person detections.",
+        "name": "safety incident video annotation",
+        "parameters": {
+          "method": "video overlay rendering"
+        },
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "runtime performance metrics@input1"
+        ],
+        "category": "other",
+        "confirmed": true,
+        "description": "Measure and report FPS, inference latency, and processing time in the structured JSON output.",
+        "name": "runtime performance metrics",
+        "reference_path": null
+      },
+      {
+        "applies_to": [
+          "people detection@input1",
+          "PPE violation detection@input1",
+          "runtime performance metrics@input1"
+        ],
+        "catalogue": "§3 Scene · Darkness",
+        "category": "pre_nn_conditioning",
+        "condition": "Strength ramps from 0 at median luma 0.30 to full at 0.15; frames brighter than 0.30 pass through untouched.",
+        "confirmed": true,
+        "cue": [
+          "low_light_after_dark"
+        ],
+        "description": "Local contrast, without blowing out bright areas. Added because input1 is dark at night and changes between daylight and dark. The corrected picture is also what the saved video shows.",
+        "group": 3,
+        "name": "CLAHE",
+        "parameters": {
+          "ops": [
+            {
+              "clip_limit": 2.0,
+              "op": "clahe_luma",
+              "tiles": [
+                8,
+                8
+              ]
+            }
+          ],
+          "ramp": {
+            "full": 0.15,
+            "measure": "p50",
+            "off": 0.3
+          }
+        },
+        "placement": {
+          "order": 28,
+          "position": "pre_pgie"
+        },
+        "reference_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/scene_steps/frame_conditioning_11bbafe058.py",
+        "source": "scene"
+      }
+    ],
+    "target_classes": [],
+    "task_kind": null,
+    "tasks": [
+      {
+        "details": "Use a compatible pretrained YOLO model and existing compatible PipeGen models and nodes. Do not add unsupported PPE detection or incompatible TensorRT components. Validate tensor shapes, model paths, and graph connections; report missing dependencies before execution. Prioritize a pipeline that executes successfully.",
+        "for_input": "input1",
+        "needs_model": true,
+        "target_classes": [
+          "people"
+        ],
+        "type": "people detection"
+      },
+      {
+        "details": "Detect missing safety helmets and missing reflective high-visibility vests only if a compatible PPE model is available. Use Model 2 at the supplied existing path `home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/best.onnx`. Never infer missing PPE from a person-only detector. Do not add unsupported PPE detection; report missing model dependencies before execution. Assign HIGH severity only for violations actually detected by a compatible model.",
+        "for_input": "input1",
+        "needs_model": true,
+        "target_classes": [
+          "missing safety helmets",
+          "missing reflective high-visibility vests"
+        ],
+        "type": "PPE violation detection"
+      },
+      {
+        "details": "Measure and report FPS, inference latency, and processing time in the structured JSON output.",
+        "for_input": "input1",
+        "needs_model": false,
+        "target_classes": [],
+        "type": "runtime performance metrics"
+      },
+      {
+        "derives_from": [
+          "people detection@input1"
+        ],
+        "details": "Track each detected person with persistent IDs.",
+        "for_input": "input1",
+        "method": {
+          "catalogue": null,
+          "from": "words",
+          "name": "persistent-ID multi-object tracking",
+          "params": {},
+          "quote": "track each person with persistent IDs"
+        },
+        "needs_model": false,
+        "target_classes": [
+          "people"
+        ],
+        "type": "person tracking"
+      },
+      {
+        "derives_from": [
+          "person tracking@input1"
+        ],
+        "details": "Detect each tracked person's entry into and exit from an editable restricted-zone polygon by boundary crossing. Configure the polygon over the clearly visible restricted-access area, such as a marked or barricaded zone; if none is visible, use a clearly defined area near restricted machinery or a safety barrier. Keep the polygon editable for adjustment during testing. Record each event with the person's persistent tracking ID, timestamp, and evidence frame.",
+        "for_input": "input1",
+        "method": {
+          "catalogue": null,
+          "from": "words",
+          "name": "restricted-zone polygon boundary crossing",
+          "params": {
+            "editable": true,
+            "zone_definition": "Editable polygon over the clearly visible marked or barricaded restricted-access area; if none is visible, use a clearly defined area near restricted machinery or a safety barrier."
+          },
+          "quote": "monitor an editable restricted-zone polygon. Detect zone entry and exit"
+        },
+        "needs_model": false,
+        "target_classes": [
+          "people"
+        ],
+        "type": "restricted-zone entry/exit events"
+      },
+      {
+        "derives_from": [
+          "person tracking@input1"
+        ],
+        "details": "Detect prolonged presence after a person remains within the restricted zone for 30 seconds. Assign CRITICAL severity when the threshold is reached.",
+        "for_input": "input1",
+        "method": {
+          "catalogue": null,
+          "from": "default",
+          "name": "in-zone dwell time",
+          "params": {
+            "duration_seconds": 30
+          }
+        },
+        "needs_model": false,
+        "target_classes": [
+          "people"
+        ],
+        "type": "prolonged-presence events"
+      },
+      {
+        "derives_from": [
+          "person tracking@input1"
+        ],
+        "details": "Detect a repeat-entry event when a person enters the restricted zone 3 times within a 60-second window. Assign HIGH severity.",
+        "for_input": "input1",
+        "method": {
+          "catalogue": null,
+          "from": "default",
+          "name": "repeated restricted-zone entries",
+          "params": {
+            "entry_count": 3,
+            "window_seconds": 60
+          }
+        },
+        "needs_model": false,
+        "target_classes": [
+          "people"
+        ],
+        "type": "repeat-entry events"
+      },
+      {
+        "derives_from": [
+          "restricted-zone entry/exit events@input1",
+          "prolonged-presence events@input1",
+          "repeat-entry events@input1",
+          "PPE violation detection@input1"
+        ],
+        "details": "Generate structured JSON incident records containing timestamp, track ID, event type, confidence, severity, and evidence references including an evidence frame. Severity mapping: restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when detected by a compatible PPE model. Include measured FPS, inference latency, and processing time in the JSON output.",
+        "for_input": "input1",
+        "method": {
+          "catalogue": null,
+          "from": "words",
+          "name": "incident event record assembly",
+          "params": {
+            "severity_mapping": {
+              "normal_exit": "LOW",
+              "ppe_violation_when_detected_by_a_compati": "HIGH",
+              "prolonged_presence_beyond_configured_thr": "CRITICAL",
+              "repeat_entry_within_60_seconds": "HIGH",
+              "restricted_zone_entry": "HIGH"
+            }
+          },
+          "quote": "Generate timestamped incident records with track ID, event type, confidence, and severity"
+        },
+        "needs_model": false,
+        "target_classes": [
+          "people"
+        ],
+        "type": "timestamped incident records"
+      },
+      {
+        "derives_from": [
+          "people detection@input1",
+          "person tracking@input1",
+          "restricted-zone entry/exit events@input1",
+          "prolonged-presence events@input1",
+          "repeat-entry events@input1",
+          "PPE violation detection@input1",
+          "timestamped incident records@input1"
+        ],
+        "details": "Annotate the video with person bounding boxes, persistent tracking IDs, the restricted-zone boundary, dwell timers, and incident labels. Show PPE violations only when detected by a compatible PPE model; do not infer them from person detections.",
+        "for_input": "input1",
+        "method": {
+          "catalogue": null,
+          "from": "words",
+          "name": "video overlay rendering",
+          "params": {},
+          "quote": "Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels"
+        },
+        "needs_model": false,
+        "target_classes": [
+          "people"
+        ],
+        "type": "safety incident video annotation"
+      }
+    ],
+    "user_intent_summary": "Build an AI Workplace Safety Sentinel pipeline for prerecorded factory or warehouse video: detect and track people, monitor restricted-zone events, detect PPE violations only when a compatible model is available, generate timestamped incident records with severity and evidence references, measure performance, and save an annotated video and structured JSON outputs."
+  },
+  "repo_sources": [
+    {
+      "analysis_summaries": [
+        "The repository processes video frames for people detection using a COCO-pretrained YOLO11s ONNX model. Each frame is letterboxed to 640×640, converted to RGB, and normalized before inference. The decoder filters and suppresses overlapping predictions to produce labeled bounding boxes, including the COCO person class. The application also tracks detections and evaluates tracked people against zones, producing zone-status output.",
+        "[read_file]: application.py: \"\"\"Multi-frame sanity test for industrial restricted-area / danger-zone\nintrusion monitoring (Surveillance > Security).\n\nNo dedicated \"restricted area\" or \"intrusion detection\" model exists on\nHugging Face -- searched \"restricted area\", \"intrusion detection\",\n\"perimeter intrusion\", \"trespassing detection\", \"unauthorized access\ndetection\"; every real hit was a NETWORK/cybersecurity intrusion-detection\nmodel (text classifiers over traffic logs), not visual CCTV. Same\nsituation as QueueLengthMonito"
+      ],
+      "architecture": {
+        "connections": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          },
+          {
+            "from": "n5",
+            "to": "n6"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "n1",
+            "name": "Video input",
+            "short_description": "Reads frames from the supplied prerecorded video."
+          },
+          {
+            "id": "n2",
+            "name": "Frame preprocessing",
+            "short_description": "Resizes and letterboxes frames to 640×640, converts to RGB, and normalizes pixel values."
+          },
+          {
+            "id": "n3",
+            "name": "YOLO11s ONNX detector",
+            "short_description": "Produces raw detection predictions for COCO classes."
+          },
+          {
+            "id": "n4",
+            "name": "Detection decoder",
+            "short_description": "Transposes predictions, applies confidence filtering and NMS, and returns labeled boxes."
+          },
+          {
+            "id": "n5",
+            "name": "Person tracker",
+            "short_description": "Associates detections across frames to maintain person IDs."
+          },
+          {
+            "id": "n6",
+            "name": "Zone status and output",
+            "short_description": "Checks tracked people against configured zones and reports or visualizes their status."
+          }
+        ]
+      },
+      "class_coverage": {
+        "people detection@input1": {
+          "targets": [
+            {
+              "basis": "The selected model metadata identifies a COCO-trained detector and lists 'person'; application.py defines the same COCO class mapping and decodes detections.",
+              "kind": "labels",
+              "labels": [
+                "person"
+              ],
+              "model_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx",
+              "output": "Decoded object detections with class labels, bounding boxes, and confidence scores.",
+              "requested": "people",
+              "status": "supported"
+            }
+          ],
+          "version": 1
+        }
+      },
+      "class_coverage_signature": "51bd10fd10bd36bff03e2f64",
+      "covers_tasks": [
+        "people detection@input1"
+      ],
+      "id": "src1",
+      "label_space": {
+        "count": 80,
+        "labels": [
+          "person",
+          "bicycle",
+          "car",
+          "motorcycle",
+          "airplane",
+          "bus",
+          "train",
+          "truck",
+          "boat",
+          "traffic light",
+          "fire hydrant",
+          "stop sign",
+          "parking meter",
+          "bench",
+          "bird",
+          "cat",
+          "dog",
+          "horse",
+          "sheep",
+          "cow",
+          "elephant",
+          "bear",
+          "zebra",
+          "giraffe",
+          "backpack",
+          "umbrella",
+          "handbag",
+          "tie",
+          "suitcase",
+          "frisbee",
+          "skis",
+          "snowboard",
+          "sports ball",
+          "kite",
+          "baseball bat",
+          "baseball glove",
+          "skateboard",
+          "surfboard",
+          "tennis racket",
+          "bottle",
+          "wine glass",
+          "cup",
+          "fork",
+          "knife",
+          "spoon",
+          "bowl",
+          "banana",
+          "apple",
+          "sandwich",
+          "orange",
+          "broccoli",
+          "carrot",
+          "hot dog",
+          "pizza",
+          "donut",
+          "cake",
+          "chair",
+          "couch",
+          "potted plant",
+          "bed",
+          "dining table",
+          "toilet",
+          "tv",
+          "laptop",
+          "mouse",
+          "remote",
+          "keyboard",
+          "cell phone",
+          "microwave",
+          "oven",
+          "toaster",
+          "sink",
+          "refrigerator",
+          "book",
+          "clock",
+          "vase",
+          "scissors",
+          "teddy bear",
+          "hair drier",
+          "toothbrush"
+        ],
+        "source": "model/yolo11s.onnx metadata 'names'; application.py",
+        "version": 3
+      },
+      "model_paths": [
+        "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+      ],
+      "model_roles": [
+        {
+          "for_task": "people detection@input1",
+          "path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx",
+          "role": "Detects people and produces bounding boxes and class confidences; the script can then track detections across video fram"
+        }
+      ],
+      "pipeline_command": "python application.py --input /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4 --model model/yolo11s.onnx",
+      "project_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring",
+      "scan_hash": "9949c29d9bdc10bba3b410b441d647d8311f42c5f02ca8bdaac7a5d4e408ecb2",
+      "selected_models": [
+        "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+      ],
+      "source": "local",
+      "subfolder": null,
+      "unused_models": []
+    },
+    {
+      "analysis_summaries": [
+        "This repository provides a single-image PPE object-detection sanity test using an ONNX YOLOv8 model. The application loads an image with OpenCV, letterboxes it to 640×640, converts it to RGB, scales pixel values, and runs ONNX inference. The model outputs raw bounding boxes and scores for Gloves, Vest, goggles, helmet, mask, and safety_shoe; the decoder filters predictions, applies NMS, and maps detections to image coordinates. It reports visible PPE detections, not missing-equipment violations. The supplied task is a video file, which this entry script does not process.",
+        "[read_file]: application.py: \"\"\"Single-image sanity test for Tanishjain9/yolov8n-ppe-detection-6classes.\n\nUltralytics YOLOv8n detector, 6 PPE classes. Input images[1,3,640,640] (RGB,\nletterbox to 640 with grey (114,114,114) padding, /255, no mean/std). Output\noutput0[1,10,8400] = 4 bbox (cx,cy,w,h in 640-space) + 6 class scores, raw\n(export used nms:False) -> needs transpose + confidence filter + NMS.\nRecipe/contract from the embedded ONNX metadata and README.\n\"\"\"\n\nimport argparse\nimport os\nimport re\nfrom pathlib import Pat"
+      ],
+      "architecture": {
+        "connections": [
+          {
+            "from": "n1",
+            "to": "n2"
+          },
+          {
+            "from": "n2",
+            "to": "n3"
+          },
+          {
+            "from": "n3",
+            "to": "n4"
+          },
+          {
+            "from": "n4",
+            "to": "n5"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "n1",
+            "name": "Image path",
+            "short_description": "The application accepts an image path; it is not a video-processing entry point."
+          },
+          {
+            "id": "n2",
+            "name": "OpenCV image loading",
+            "short_description": "Reads the image and records its original dimensions."
+          },
+          {
+            "id": "n3",
+            "name": "YOLOv8 preprocessing",
+            "short_description": "Letterboxes to 640×640, converts BGR to RGB, scales pixels to [0,1], and arranges channels as NCHW."
+          },
+          {
+            "id": "n4",
+            "name": "ONNX PPE detector",
+            "short_description": "Produces raw box and class-score predictions for six PPE classes."
+          },
+          {
+            "id": "n5",
+            "name": "Detection decoder",
+            "short_description": "Applies confidence filtering and NMS, maps detections back to image coordinates, and reports visible PPE objects."
+          }
+        ]
+      },
+      "class_coverage": {
+        "PPE violation detection@input1": {
+          "targets": [
+            {
+              "basis": "The model and application identify positive PPE detections such as helmet. Neither provides person-to-PPE association or a decoder that infers missing equipment.",
+              "kind": "labels",
+              "labels": [],
+              "model_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+              "output": "Bounding boxes and class scores for visible PPE objects, decoded and filtered with non-maximum suppression; no absence or violation output.",
+              "requested": "missing safety helmets",
+              "status": "unsupported"
+            },
+            {
+              "basis": "The model and application identify positive PPE detections such as Vest. They do not determine whether a person is missing a vest or whether a vest is reflective/high-visibility.",
+              "kind": "labels",
+              "labels": [],
+              "model_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+              "output": "Bounding boxes and class scores for visible PPE objects, decoded and filtered with non-maximum suppression; no absence or violation output.",
+              "requested": "missing reflective high-visibility vests",
+              "status": "unsupported"
+            }
+          ],
+          "version": 1
+        }
+      },
+      "class_coverage_signature": "5014f03147cd183329222e87",
+      "covers_tasks": [
+        "PPE violation detection@input1"
+      ],
+      "id": "src2",
+      "label_space": {
+        "count": 6,
+        "labels": [
+          "Gloves",
+          "Vest",
+          "goggles",
+          "helmet",
+          "mask",
+          "safety_shoe"
+        ],
+        "source": "model/best.onnx metadata 'names'; application.py",
+        "version": 3
+      },
+      "model_paths": [
+        "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx"
+      ],
+      "model_roles": [
+        {
+          "for_task": "PPE violation detection@input1",
+          "path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx",
+          "role": "Detects visible PPE objects (including helmets and vests); its output does not establish whether PPE is missing."
+        }
+      ],
+      "pipeline_command": "python application.py /home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4",
+      "project_path": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit",
+      "scan_hash": "cb02a8363abf9213d7a8b58d23ec3ba90d568a97b275ff99b2b8f88056a0bbb0",
+      "selected_models": [
+        "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx"
+      ],
+      "source": "local",
+      "subfolder": null,
+      "unused_models": []
+    }
+  ],
+  "req_stage": "complete",
+  "requirement_profile": {
+    "clarify": {
+      "pipeline_goal": {
+        "label": "What should the pipeline do?",
+        "value": "Build an AI Workplace Safety Sentinel computer-vision pipeline that processes a prerecorded factory or warehouse video. Detect people using a compatible pretrained YOLO model, track each person with persistent IDs, and monitor an editable restricted-zone polygon. Detect zone entry and exit, prolonged presence, and repeat entries. Generate timestamped incident records with track ID, event type, confidence, and severity. Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels. Save the annotated video and structured JSON incident logs. Reuse existing compatible PipeGen models and nodes, validate tensor shapes, model paths, and every graph connection, and prioritize a pipeline that executes successfully. Do not add unsupported PPE detection or incompatible TensorRT components. Report any missing dependency before execution."
+      }
+    },
+    "code": [],
+    "inputs": {
+      "input1": {}
+    },
+    "outputs": {
+      "out1": {},
+      "out2": {}
+    },
+    "tasks": {
+      "PPE violation detection@input1": {
+        "ppe_violation_criteria": {
+          "label": "Which missing or improperly worn PPE conditions should be reported as violations?",
+          "value": "Flag missing safety helmets and missing reflective high-visibility vests. Only report violations when a compatible PPE detection model is available; never infer missing PPE from a person-only detector. Include the person's tracking ID, timestamp, confidence, and evidence frame in the incident record."
+        }
+      },
+      "prolonged-presence events@input1": {
+        "dwell_duration": {
+          "label": "How many seconds must a person remain in the restricted zone before the event fires?",
+          "value": 30
+        }
+      },
+      "repeat-entry events@input1": {
+        "repeat_entry_count": {
+          "label": "How many entries within the 60-second window should trigger a repeat-entry event?",
+          "value": 3
+        }
+      },
+      "restricted-zone entry/exit events@input1": {
+        "zone_polygon": {
+          "label": "Describe the restricted-zone polygon’s location in the video frame, or identify the area to configure as the editable zone.",
+          "value": "Configure an editable polygon over the clearly visible restricted-access area in the video, such as the marked or barricaded zone. If no marked zone is visible, use a clearly defined area near restricted machinery or a safety barrier. Track each person's entry and exit using their persistent tracking ID, timestamp, and evidence frame. Keep the polygon editable for adjustment during testing."
+        }
+      },
+      "timestamped incident records@input1": {
+        "entry_count": {
+          "label": "How many entries within the 60-second window should trigger a repeat-entry event?",
+          "value": 3
+        }
+      }
+    }
+  },
+  "scan_hits": [
+    {
+      "analysis_cached": false,
+      "cache_hit": false,
+      "hash": "9949c29d9bdc10bba3b410b441d647d8311f42c5f02ca8bdaac7a5d4e408ecb2",
+      "source": "src1"
+    },
+    {
+      "analysis_cached": false,
+      "cache_hit": false,
+      "hash": "cb02a8363abf9213d7a8b58d23ec3ba90d568a97b275ff99b2b8f88056a0bbb0",
+      "source": "src2"
+    },
+    {
+      "analysis_cached": true,
+      "cache_hit": true,
+      "hash": "9949c29d9bdc10bba3b410b441d647d8311f42c5f02ca8bdaac7a5d4e408ecb2",
+      "source": "src1"
+    },
+    {
+      "analysis_cached": false,
+      "cache_hit": true,
+      "hash": "cb02a8363abf9213d7a8b58d23ec3ba90d568a97b275ff99b2b8f88056a0bbb0",
+      "source": "src2"
+    }
+  ],
+  "source_strategy": "separate",
+  "task_checklist": {
+    "active": null,
+    "items": [
+      {
+        "id": 1,
+        "indices": [
+          0
+        ],
+        "keys": [
+          "people detection@input1"
+        ],
+        "label": "people detection on input1 (prerecorded factory or warehouse video)",
+        "round": 0,
+        "status": "done",
+        "summary": "People detection uses compatible pretrained YOLO/PipeGen components; validate dependencies and graph connections, and exclude unsupported PPE detection and inco"
+      },
+      {
+        "id": 2,
+        "indices": [
+          1
+        ],
+        "keys": [
+          "PPE violation detection@input1"
+        ],
+        "label": "PPE violation detection on input1 (prerecorded factory or warehouse video)",
+        "round": 1,
+        "status": "done",
+        "summary": "PPE violations are limited to missing helmets and reflective high-visibility vests detected by a compatible PPE model; incident records include tracking ID, tim"
+      },
+      {
+        "id": 3,
+        "indices": [
+          2
+        ],
+        "keys": [
+          "runtime performance metrics@input1"
+        ],
+        "label": "runtime performance metrics on input1 (prerecorded factory or warehouse video)",
+        "round": 0,
+        "status": "done",
+        "summary": "Measure FPS, inference latency, and processing time for input1 and include them in the structured JSON output."
+      },
+      {
+        "id": 4,
+        "indices": [
+          3
+        ],
+        "keys": [
+          "person tracking@input1"
+        ],
+        "label": "person tracking on input1 (prerecorded factory or warehouse video)",
+        "round": 0,
+        "status": "done",
+        "summary": "Track detected people on input1 over time with persistent IDs."
+      },
+      {
+        "id": 5,
+        "indices": [
+          4
+        ],
+        "keys": [
+          "restricted-zone entry/exit events@input1"
+        ],
+        "label": "restricted-zone entry/exit events on input1 (prerecorded factory or warehouse video)",
+        "round": 1,
+        "status": "done",
+        "summary": "Restricted-zone boundary-crossing events use an editable polygon over the visible marked/barricaded area or a defined area near restricted machinery or a safety"
+      },
+      {
+        "id": 6,
+        "indices": [
+          5
+        ],
+        "keys": [
+          "prolonged-presence events@input1"
+        ],
+        "label": "prolonged-presence events on input1 (prerecorded factory or warehouse video)",
+        "round": 1,
+        "status": "done",
+        "summary": "Prolonged presence is triggered after 30 seconds in the restricted zone; severity is CRITICAL."
+      },
+      {
+        "id": 7,
+        "indices": [
+          6
+        ],
+        "keys": [
+          "repeat-entry events@input1"
+        ],
+        "label": "repeat-entry events on input1 (prerecorded factory or warehouse video)",
+        "round": 1,
+        "status": "done",
+        "summary": "Repeat-entry event: 3 zone entries within 60 seconds; severity HIGH."
+      },
+      {
+        "id": 8,
+        "indices": [
+          7
+        ],
+        "keys": [
+          "timestamped incident records@input1"
+        ],
+        "label": "timestamped incident records on input1 (prerecorded factory or warehouse video)",
+        "round": 1,
+        "status": "done",
+        "summary": "Incident records include timestamps, track IDs, event types, confidence, severity, evidence references, and FPS, inference latency, and processing time."
+      },
+      {
+        "id": 9,
+        "indices": [
+          8
+        ],
+        "keys": [
+          "safety incident video annotation@input1"
+        ],
+        "label": "safety incident video annotation on input1 (prerecorded factory or warehouse video)",
+        "round": 0,
+        "status": "done",
+        "summary": "Video annotation uses detection, tracking, incident events, and incident records to show person boxes and IDs, the zone boundary, dwell timers, and incident lab"
+      }
+    ],
+    "version": 11
+  },
+  "typed_on_cards": {
+    "12": [
+      "Flag missing safety helmets and missing reflective high-visibility vests. Only report violations when a compatible PPE detection model is available; never infer missing PPE from a person-only detector. Include the person's tracking ID, timestamp, confidence, and evidence frame in the incident record."
+    ],
+    "14": [
+      "Configure an editable polygon over the clearly visible restricted-access area in the video, such as the marked or barricaded zone. If no marked zone is visible, use a clearly defined area near restricted machinery or a safety barrier. Track each person's entry and exit using their persistent tracking ID, timestamp, and evidence frame. Keep the polygon editable for adjustment during testing."
+    ],
+    "16": [
+      "30"
+    ],
+    "18": [
+      "3"
+    ],
+    "2": [
+      "Build an AI Workplace Safety Sentinel computer-vision pipeline that processes a prerecorded factory or warehouse video. Detect people using a compatible pretrained YOLO model, track each person with persistent IDs, and monitor an editable restricted-zone polygon. Detect zone entry and exit, prolonged presence, and repeat entries. Generate timestamped incident records with track ID, event type, confidence, and severity. Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels. Save the annotated video and structured JSON incident logs. Reuse existing compatible PipeGen models and nodes, validate tensor shapes, model paths, and every graph connection, and prioritize a pipeline that executes successfully. Do not add unsupported PPE detection or incompatible TensorRT components. Report any missing dependency before execution."
+    ],
+    "20": [
+      "3"
+    ],
+    "24": [
+      "local",
+      "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+    ],
+    "46": [
+      "local",
+      "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onn",
+      "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/src2/ppe-kit/model/best.onnx"
+    ],
+    "48": [
+      "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+    ],
+    "6": [
+      "/home/areefjeevan/Downloads/pipegen/bulk-to-loose-process-in-large-warehouse-distribution-centre_ciCvOEuJ.mp4"
+    ],
+    "8": []
+  },
+  "understanding": {
+    "answered": {
+      "performance_metrics": "Measure FPS, inference latency, and processing time.",
+      "pipeline_goal": "Build an AI Workplace Safety Sentinel computer-vision pipeline that processes a prerecorded factory or warehouse video. Detect people using a compatible pretrained YOLO model, track each person with persistent IDs, and monitor an editable restricted-zone polygon. Detect zone entry and exit, prolonged presence, and repeat entries. Generate timestamped incident records with track ID, event type, confidence, and severity. Annotate the video with bounding boxes, tracking IDs, the zone boundary, dwell timers, and incident labels. Save the annotated video and structured JSON incident logs. Reuse existing compatible PipeGen models and nodes, validate tensor shapes, model paths, and every graph connection, and prioritize a pipeline that executes successfully. Do not add unsupported PPE detection or incompatible TensorRT components. Report any missing dependency before execution.",
+      "ppe_detection_condition": "Detect PPE violations only when supported by a compatible model.",
+      "repeat_entry_window": "60 seconds",
+      "severity_mapping": "Restricted-zone entry = HIGH; normal exit = LOW; prolonged presence beyond the configured threshold = CRITICAL; repeat entry within 60 seconds = HIGH; PPE violations = HIGH only when detected by a compatible PPE model."
+    },
+    "asked": [
+      "What should the pipeline do?",
+      "What should the pipeline do with them (detect, count, classify, segment, measure, ...)?",
+      "What severity should each incident type receive?",
+      "Which missing or improperly worn PPE conditions should be reported as violations?",
+      "Describe the restricted-zone polygon’s location in the video frame, or identify the area to configure as the editable zone.",
+      "How many seconds must a person remain in the restricted zone before the event fires?",
+      "How many entries within the 60-second window should trigger a repeat-entry event?"
+    ],
+    "defaulted": {
+      "inputs": {},
+      "outputs": {}
+    },
+    "deferred": [],
+    "input_count": 1,
+    "input_fields": [],
+    "notes": [
+      "turn 1: No pipeline task or input was described, so no requirement changes are needed.",
+      "turn 2: The user described one prerecorded video, so record one video-file input with frame data; its path is collected by the host.",
+      "turn 2: The user requested an annotated video and structured JSON incident logs; their destinations are collected by the host.",
+      "turn 2: Person recognition requires a model, and the user explicitly requested a compatible pretrained YOLO model.",
+      "turn 2: Tracking and zone/dwell/repeat-entry rules use detected people and their identities, so represent them as derived tasks without separate models.",
+      "turn 2: Severity assignment changes the incident result and was not specified, so ask rather than invent a mapping.",
+      "turn 2: The user explicitly ruled out unsupported PPE detection and incompatible TensorRT components; preserve those constraints.",
+      "turn 3: The repeat-entry window is explicitly given as 60 seconds, so it is recorded as a task setting.",
+      "turn 3: The severity mapping is user-provided and updates incident-record assembly rather than being guessed.",
+      "turn 3: PPE violations are a separate model-based result and remain conditional on compatible model availability.",
+      "turn 3: FPS, inference latency, and processing time are recorded as runtime metrics and requested in the JSON output.",
+      "turn 3: The existing video input and output destinations are unchanged; no missing paths or destinations are asked for."
+    ],
+    "output_fields": [],
+    "question_turns": 2,
+    "taken": [
+      "outputs"
+    ]
+  }
+}

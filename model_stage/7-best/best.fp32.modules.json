@@ -1,0 +1,20 @@
+{
+  "blocks": [
+    {
+      "name": "Output post-processing / box decode",
+      "operations": "DFL projection, logits sigmoid, box decode math, scaling",
+      "precision": "FP32",
+      "time_ms": 1.575093,
+      "pct": 18.6,
+      "start_index": 179,
+      "end_index": 198,
+      "layer_count": 20
+    }
+  ],
+  "source": "reasoner",
+  "architecture": "YOLOv8-style object detector: CSP-like backbone + PAN-FPN neck + decoupled heads with DFL",
+  "total_ms": 8.468507,
+  "layer_count": 199,
+  "warnings": [],
+  "fingerprint": "199:8.469:/model.22/Constant_12_output_0:/model.22/Mul_2_output_0 copy"
+}

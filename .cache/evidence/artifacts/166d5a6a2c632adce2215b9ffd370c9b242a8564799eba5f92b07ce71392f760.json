@@ -1,0 +1,1 @@
+"{\n    \"root\": \"/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring\",\n    \"tree\": {\n        \"model\": {\n            \"download.sh\": \"model/download.sh\",\n            \"yolo11s.onnx\": \"model/yolo11s.onnx\"\n        },\n        \"application.py\": \"application.py\"\n    }\n}"

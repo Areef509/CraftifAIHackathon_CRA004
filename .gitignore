@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.onnx
+*.plan
+*.engine
+*.mp4
+*.mkv
+*.avi

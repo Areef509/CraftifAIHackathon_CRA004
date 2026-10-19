@@ -1,0 +1,6 @@
+
+==============================================================================
+[2026-10-19T19:25:10+00:00] run.debug.sh FAILED (attempt 1/4)
+------------------------------------------------------------------------------
+pre-flight found 1 problem(s) in the generated pipeline:
+  1. nvcustomprocess custom-lib-path points at 'libclahe_process.so', which does not exist (dlopen would fail). Built libraries are: ['libclahe_preprocess_process.so', 'libclahe_preprocess_process.so.pipegen-cpu-safe', 'libconfig_person_det_parser.so', 'libconfig_ppe_det_parser.so', 'libmeta_json.so', 'libmeta_json.so.pipegen-cpu-safe', 'librender_safety_process.so', 'librender_safety_process.so.pipegen-cpu-safe', 'libvms_detect.so', 'libvms_detect.so.pipegen-cpu-safe']. Fix run.sh to name one of them.

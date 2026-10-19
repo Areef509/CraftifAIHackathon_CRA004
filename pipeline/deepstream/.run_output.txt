@@ -1,0 +1,208 @@
+[run.vms.sh] video tcp://0.0.0.0:7010  metadata tcp://0.0.0.0:7002
+[run.sh] encoder: x264enc (software) @ 8000kbit/s — no /dev/v4l2-nvenc
+[run.sh] JSON -> /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json
+make: Entering directory '/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/pipeline/deepstream/parsers'
+make: Nothing to be done for 'all'.
+make: Leaving directory '/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/pipeline/deepstream/parsers'
+Setting pipeline to PAUSED ...
+gstnvtracker: Loading low-level lib at /opt/nvidia/deepstream/deepstream/lib/libnvds_nvmultiobjecttracker.so
+[NvMultiObjectTracker] Initialized
+0:00:01.290893224 [34m 3021[00m 0x63890e0380e0 [36mINFO   [00m [00m    nvinfer_backport gstnvinfer.cpp:684:gst_nvinfer_backport_logger:<nvinferbackport0>[00m NvDsInferContext[UID 1]: Info from NvDsInferContextImpl::deserializeEngineAndBackend() <nvdsinfer_context_impl.cpp:2161> [UID = 1]: deserialized trt engine from :/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/yolo11s.fp16.plan
+0:00:01.291133439 [34m 3021[00m 0x63890e0380e0 [36mINFO   [00m [00m    nvinfer_backport gstnvinfer.cpp:684:gst_nvinfer_backport_logger:<nvinferbackport0>[00m NvDsInferContext[UID 1]: Info from NvDsInferContextImpl::generateBackendContext() <nvdsinfer_context_impl.cpp:2264> [UID = 1]: Use deserialized engine model: /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/yolo11s.fp16.plan
+0:00:01.378840389 [34m 3021[00m 0x63890e0380e0 [36mINFO   [00m [00m    nvinfer_backport gstnvinfer_impl.cpp:343:notifyLoadModelStatus:<nvinferbackport0>[00m [UID 1]: Load new model:/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/pipeline/deepstream/configs/config_person_det.txt sucessfully
+0:00:01.492254317 [34m 3021[00m 0x63890e0380e0 [36mINFO   [00m [00m    nvinfer_backport gstnvinfer.cpp:684:gst_nvinfer_backport_logger:<nvinferbackport1>[00m NvDsInferContext[UID 2]: Info from NvDsInferContextImpl::deserializeEngineAndBackend() <nvdsinfer_context_impl.cpp:2161> [UID = 2]: deserialized trt engine from :/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/best.fp32.plan
+0:00:01.492390028 [34m 3021[00m 0x63890e0380e0 [36mINFO   [00m [00m    nvinfer_backport gstnvinfer.cpp:684:gst_nvinfer_backport_logger:<nvinferbackport1>[00m NvDsInferContext[UID 2]: Info from NvDsInferContextImpl::generateBackendContext() <nvdsinfer_context_impl.cpp:2264> [UID = 2]: Use deserialized engine model: /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-best/best.fp32.plan
+0:00:01.509473808 [34m 3021[00m 0x63890e0380e0 [36mINFO   [00m [00m    nvinfer_backport gstnvinfer_impl.cpp:343:notifyLoadModelStatus:<nvinferbackport1>[00m [UID 2]: Load new model:/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/pipeline/deepstream/configs/config_ppe_det.txt sucessfully
+Implicit layer support has been deprecated
+INFO: [Implicit Engine Info]: layers num: 0
+
+Implicit layer support has been deprecated
+INFO: [Implicit Engine Info]: layers num: 0
+
+Pipeline is live and does not need PREROLL ...
+Pipeline is PREROLLED ...
+Setting pipeline to PLAYING ...
+New clock: GstSystemClock
+Failed to query video capabilities: Inappropriate ioctl for device
+Warning: Color primaries 5 not present and will be treated BT.601
+Redistribute latency...
+[PPE_DET] first call: layer=output0 numDims=2 networkInput=640x640 numClasses=6 outputs=1
+[PersonDet] first call: layer=output0 numDims=2 networkInput=640x640 numClasses=80 outputs=1
+[meta_json] file -> /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/output/metadata.json
+[event-sink] metadata on tcp://:7002
+[vms-events] -> /home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/pipeline/deepstream/store/events/cam<N>.jsonl  (min_conf=0.30 interval=5 skip_empty=1)
+Redistribute latency...
+Redistribute latency...
+[event-sink] console connected (1)
+[vms-events]     48 frames      10 events        0 objects    4.9 ev/s  1 camera(s)
+[vms-events]    103 frames      21 events        0 objects    5.5 ev/s  1 camera(s)
+[vms-events]    160 frames      32 events        0 objects    5.4 ev/s  1 camera(s)
+[vms-events]    220 frames      44 events        0 objects    6.0 ev/s  1 camera(s)
+[vms-events]    279 frames      56 events        0 objects    5.9 ev/s  1 camera(s)
+[vms-events]    338 frames      68 events        0 objects    5.9 ev/s  1 camera(s)
+[vms-events]    396 frames      80 events        0 objects    6.0 ev/s  1 camera(s)
+[vms-events]    449 frames      90 events        0 objects    4.8 ev/s  1 camera(s)
+[vms-events]    507 frames     102 events        2 objects    6.0 ev/s  1 camera(s)
+[vms-events]    563 frames     113 events        9 objects    5.5 ev/s  1 camera(s)
+[vms-events]    618 frames     124 events       16 objects    5.4 ev/s  1 camera(s)
+[vms-events]    675 frames     135 events       21 objects    5.4 ev/s  1 camera(s)
+[vms-events]    732 frames     147 events       31 objects    5.9 ev/s  1 camera(s)
+[vms-events]    788 frames     158 events       45 objects    5.5 ev/s  1 camera(s)
+[vms-events]    843 frames     169 events       52 objects    5.4 ev/s  1 camera(s)
+[vms-events]    895 frames     179 events       60 objects    4.9 ev/s  1 camera(s)
+[vms-events]    950 frames     190 events       61 objects    5.5 ev/s  1 camera(s)
+[vms-events]   1009 frames     202 events       61 objects    5.9 ev/s  1 camera(s)
+[vms-events]   1066 frames     214 events       61 objects    5.9 ev/s  1 camera(s)
+[vms-events]   1123 frames     225 events       61 objects    5.4 ev/s  1 camera(s)
+[vms-events]   1182 frames     237 events       61 objects    6.0 ev/s  1 camera(s)
+[vms-events]   1235 frames     247 events       61 objects    4.9 ev/s  1 camera(s)
+[vms-events]   1283 frames     257 events       61 objects    4.9 ev/s  1 camera(s)
+[vms-events]   1331 frames     267 events       61 objects    5.0 ev/s  1 camera(s)
+[vms-events]   1384 frames     277 events       61 objects    5.0 ev/s  1 camera(s)
+[vms-events]   1441 frames     289 events       61 objects    5.9 ev/s  1 camera(s)
+[vms-events]   1498 frames     300 events       63 objects    5.4 ev/s  1 camera(s)
+[vms-events]   1546 frames     310 events       72 objects    5.0 ev/s  1 camera(s)
+[vms-events]   1594 frames     319 events       80 objects    4.5 ev/s  1 camera(s)
+[vms-events]   1638 frames     328 events       94 objects    4.4 ev/s  1 camera(s)
+[vms-events]   1684 frames     337 events       98 objects    4.3 ev/s  1 camera(s)
+[vms-events]   1736 frames     348 events      109 objects    5.5 ev/s  1 camera(s)
+[vms-events]   1792 frames     359 events      120 objects    5.4 ev/s  1 camera(s)
+[vms-events]   1848 frames     370 events      139 objects    5.5 ev/s  1 camera(s)
+[vms-events]   1909 frames     382 events      153 objects    6.0 ev/s  1 camera(s)
+[vms-events]   1970 frames     394 events      168 objects    5.9 ev/s  1 camera(s)
+[vms-events]   2029 frames     406 events      189 objects    5.9 ev/s  1 camera(s)
+[vms-events]   2088 frames     418 events      200 objects    6.0 ev/s  1 camera(s)
+[vms-events]   2145 frames     429 events      212 objects    5.4 ev/s  1 camera(s)
+[vms-events]   2201 frames     441 events      236 objects    6.0 ev/s  1 camera(s)
+[vms-events]   2257 frames     452 events      249 objects    5.5 ev/s  1 camera(s)
+[vms-events]   2314 frames     463 events      260 objects    5.3 ev/s  1 camera(s)
+[vms-events]   2375 frames     475 events      278 objects    5.9 ev/s  1 camera(s)
+[vms-events]   2427 frames     486 events      296 objects    5.5 ev/s  1 camera(s)
+[vms-events]   2488 frames     498 events      316 objects    6.0 ev/s  1 camera(s)
+[vms-events]   2542 frames     509 events      334 objects    5.4 ev/s  1 camera(s)
+[vms-events]   2599 frames     520 events      356 objects    5.3 ev/s  1 camera(s)
+[vms-events]   2655 frames     531 events      376 objects    5.5 ev/s  1 camera(s)
+[vms-events]   2711 frames     543 events      400 objects    5.8 ev/s  1 camera(s)
+[vms-events]   2757 frames     552 events      416 objects    4.5 ev/s  1 camera(s)
+[vms-events]   2805 frames     561 events      438 objects    4.4 ev/s  1 camera(s)
+[vms-events]   2856 frames     572 events      483 objects    5.5 ev/s  1 camera(s)
+[vms-events]   2907 frames     582 events      537 objects    4.9 ev/s  1 camera(s)
+[vms-events]   2962 frames     593 events      596 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3017 frames     604 events      646 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3074 frames     615 events      696 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3130 frames     626 events      748 objects    5.5 ev/s  1 camera(s)
+[vms-events]   3185 frames     637 events      779 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3242 frames     649 events      817 objects    6.0 ev/s  1 camera(s)
+[vms-events]   3297 frames     660 events      861 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3352 frames     671 events      907 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3408 frames     682 events      955 objects    5.5 ev/s  1 camera(s)
+[vms-events]   3466 frames     694 events      987 objects    6.0 ev/s  1 camera(s)
+[vms-events]   3524 frames     705 events     1009 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3581 frames     717 events     1037 objects    6.0 ev/s  1 camera(s)
+[vms-events]   3641 frames     729 events     1071 objects    6.0 ev/s  1 camera(s)
+[vms-events]   3701 frames     741 events     1107 objects    5.9 ev/s  1 camera(s)
+[vms-events]   3763 frames     753 events     1143 objects    6.0 ev/s  1 camera(s)
+[vms-events]   3819 frames     764 events     1176 objects    5.5 ev/s  1 camera(s)
+[vms-events]   3866 frames     774 events     1185 objects    4.9 ev/s  1 camera(s)
+[vms-events]   3921 frames     785 events     1185 objects    5.4 ev/s  1 camera(s)
+[vms-events]   3979 frames     796 events     1185 objects    5.4 ev/s  1 camera(s)
+[vms-events]   4037 frames     808 events     1185 objects    6.0 ev/s  1 camera(s)
+[vms-events]   4095 frames     819 events     1192 objects    5.4 ev/s  1 camera(s)
+[vms-events]   4151 frames     831 events     1192 objects    6.0 ev/s  1 camera(s)
+[vms-events]   4208 frames     842 events     1192 objects    5.5 ev/s  1 camera(s)
+[vms-events]   4265 frames     853 events     1203 objects    5.4 ev/s  1 camera(s)
+[vms-events]   4322 frames     865 events     1213 objects    6.0 ev/s  1 camera(s)
+[vms-events]   4378 frames     876 events     1217 objects    5.5 ev/s  1 camera(s)
+[vms-events]   4431 frames     887 events     1230 objects    5.5 ev/s  1 camera(s)
+[vms-events]   4484 frames     897 events     1246 objects    5.0 ev/s  1 camera(s)
+[vms-events]   4531 frames     907 events     1271 objects    5.0 ev/s  1 camera(s)
+[vms-events]   4578 frames     916 events     1285 objects    4.5 ev/s  1 camera(s)
+[vms-events]   4626 frames     926 events     1300 objects    5.0 ev/s  1 camera(s)
+[vms-events]   4681 frames     937 events     1322 objects    5.4 ev/s  1 camera(s)
+[vms-events]   4740 frames     948 events     1344 objects    5.4 ev/s  1 camera(s)
+[vms-events]   4795 frames     959 events     1365 objects    5.5 ev/s  1 camera(s)
+[vms-events]   4842 frames     969 events     1385 objects    4.9 ev/s  1 camera(s)
+[vms-events]   4891 frames     979 events     1386 objects    4.9 ev/s  1 camera(s)
+[vms-events]   4941 frames     989 events     1386 objects    4.9 ev/s  1 camera(s)
+[vms-events]   4992 frames     999 events     1386 objects    4.9 ev/s  1 camera(s)
+[vms-events]   5051 frames    1011 events     1386 objects    6.0 ev/s  1 camera(s)
+[vms-events]   5108 frames    1022 events     1386 objects    5.5 ev/s  1 camera(s)
+[vms-events]   5167 frames    1034 events     1401 objects    5.9 ev/s  1 camera(s)
+[vms-events]   5224 frames    1045 events     1426 objects    5.5 ev/s  1 camera(s)
+[vms-events]   5281 frames    1057 events     1458 objects    5.8 ev/s  1 camera(s)
+[vms-events]   5340 frames    1068 events     1470 objects    5.4 ev/s  1 camera(s)
+[vms-events]   5390 frames    1078 events     1470 objects    4.9 ev/s  1 camera(s)
+[vms-events]   5439 frames    1088 events     1470 objects    4.9 ev/s  1 camera(s)
+[vms-events]   5491 frames    1099 events     1493 objects    5.4 ev/s  1 camera(s)
+[vms-events]   5543 frames    1109 events     1529 objects    5.0 ev/s  1 camera(s)
+[vms-events]   5603 frames    1121 events     1561 objects    5.8 ev/s  1 camera(s)
+[vms-events]   5664 frames    1133 events     1589 objects    5.9 ev/s  1 camera(s)
+[vms-events]   5727 frames    1146 events     1625 objects    6.3 ev/s  1 camera(s)
+[vms-events]   5789 frames    1158 events     1659 objects    5.9 ev/s  1 camera(s)
+[vms-events]   5845 frames    1169 events     1680 objects    5.5 ev/s  1 camera(s)
+[vms-events]   5896 frames    1180 events     1704 objects    5.4 ev/s  1 camera(s)
+[vms-events]   5948 frames    1190 events     1729 objects    4.9 ev/s  1 camera(s)
+[vms-events]   5998 frames    1200 events     1753 objects    4.9 ev/s  1 camera(s)
+[vms-events]   6051 frames    1211 events     1779 objects    5.5 ev/s  1 camera(s)
+[vms-events]   6103 frames    1221 events     1800 objects    4.9 ev/s  1 camera(s)
+[vms-events]   6156 frames    1232 events     1829 objects    5.4 ev/s  1 camera(s)
+[vms-events]   6208 frames    1242 events     1845 objects    4.9 ev/s  1 camera(s)
+[vms-events]   6268 frames    1254 events     1866 objects    5.9 ev/s  1 camera(s)
+[vms-events]   6330 frames    1266 events     1905 objects    5.9 ev/s  1 camera(s)
+[vms-events]   6391 frames    1279 events     1931 objects    6.4 ev/s  1 camera(s)
+[vms-events]   6451 frames    1291 events     1970 objects    6.0 ev/s  1 camera(s)
+[vms-events]   6509 frames    1302 events     1982 objects    5.4 ev/s  1 camera(s)
+[vms-events]   6565 frames    1313 events     1994 objects    5.5 ev/s  1 camera(s)
+[vms-events]   6620 frames    1324 events     2004 objects    5.4 ev/s  1 camera(s)
+[vms-events]   6677 frames    1336 events     2011 objects    6.0 ev/s  1 camera(s)
+[vms-events]   6734 frames    1347 events     2015 objects    5.4 ev/s  1 camera(s)
+[vms-events]   6792 frames    1359 events     2016 objects    5.9 ev/s  1 camera(s)
+[vms-events]   6852 frames    1371 events     2016 objects    6.0 ev/s  1 camera(s)
+[vms-events]   6910 frames    1382 events     2017 objects    5.5 ev/s  1 camera(s)
+[vms-events]   6966 frames    1394 events     2027 objects    5.9 ev/s  1 camera(s)
+[vms-events]   7025 frames    1405 events     2028 objects    5.5 ev/s  1 camera(s)
+[vms-events]   7080 frames    1416 events     2038 objects    5.5 ev/s  1 camera(s)
+[vms-events]   7135 frames    1427 events     2067 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7193 frames    1439 events     2080 objects    5.9 ev/s  1 camera(s)
+[vms-events]   7250 frames    1450 events     2084 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7307 frames    1462 events     2098 objects    5.9 ev/s  1 camera(s)
+[vms-events]   7364 frames    1473 events     2110 objects    5.5 ev/s  1 camera(s)
+[vms-events]   7420 frames    1484 events     2128 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7477 frames    1496 events     2142 objects    5.8 ev/s  1 camera(s)
+[vms-events]   7534 frames    1507 events     2154 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7589 frames    1518 events     2165 objects    5.5 ev/s  1 camera(s)
+[vms-events]   7647 frames    1530 events     2179 objects    5.9 ev/s  1 camera(s)
+[vms-events]   7704 frames    1541 events     2181 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7760 frames    1552 events     2188 objects    5.5 ev/s  1 camera(s)
+[vms-events]   7813 frames    1563 events     2190 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7868 frames    1574 events     2192 objects    5.4 ev/s  1 camera(s)
+[vms-events]   7925 frames    1585 events     2193 objects    5.5 ev/s  1 camera(s)
+[vms-events]   7985 frames    1597 events     2193 objects    6.0 ev/s  1 camera(s)
+[vms-events]   8044 frames    1609 events     2193 objects    5.9 ev/s  1 camera(s)
+[vms-events]   8103 frames    1621 events     2193 objects    6.0 ev/s  1 camera(s)
+[vms-events]   8160 frames    1632 events     2240 objects    5.5 ev/s  1 camera(s)
+[vms-events]   8214 frames    1643 events     2318 objects    5.5 ev/s  1 camera(s)
+[vms-events]   8270 frames    1654 events     2388 objects    5.5 ev/s  1 camera(s)
+[vms-events]   8326 frames    1666 events     2460 objects    6.0 ev/s  1 camera(s)
+[vms-events]   8381 frames    1677 events     2530 objects    5.4 ev/s  1 camera(s)
+[vms-events]   8441 frames    1689 events     2657 objects    5.9 ev/s  1 camera(s)
+[vms-events]   8500 frames    1700 events     2840 objects    5.5 ev/s  1 camera(s)
+[vms-events]   8561 frames    1713 events     3038 objects    6.5 ev/s  1 camera(s)
+[vms-events]   8622 frames    1725 events     3184 objects    6.0 ev/s  1 camera(s)
+[vms-events]   8683 frames    1737 events     3317 objects    5.9 ev/s  1 camera(s)
+[vms-events]   8746 frames    1750 events     3517 objects    6.4 ev/s  1 camera(s)
+[vms-events]   8806 frames    1762 events     3728 objects    6.0 ev/s  1 camera(s)
+[vms-events]   8866 frames    1774 events     3936 objects    5.9 ev/s  1 camera(s)
+[vms-events]   8926 frames    1786 events     4134 objects    6.0 ev/s  1 camera(s)
+[vms-events]   8986 frames    1798 events     4341 objects    5.9 ev/s  1 camera(s)
+[vms-events]   9045 frames    1809 events     4509 objects    5.4 ev/s  1 camera(s)
+[vms-events]   9105 frames    1821 events     4742 objects    6.0 ev/s  1 camera(s)
+[vms-events]   9164 frames    1833 events     4980 objects    5.9 ev/s  1 camera(s)
+nvstreammux: Successfully handled EOS for source_id=0
+Got EOS from element "pipeline0".
+EOS received - stopping pipeline...
+Execution ended after 0:05:34.486940310
+Setting pipeline to NULL ...
+Freeing pipeline ...
+[NvMultiObjectTracker] De-initialized
+[meta_json] 9181 frames, 25190 objects

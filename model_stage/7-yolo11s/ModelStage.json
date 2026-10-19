@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "steps": {
+    "visualize": {
+      "step": "visualize",
+      "status": "ok",
+      "summary": "323 graph nodes \u00b7 0 unresolved TensorRT node(s)",
+      "detail": "",
+      "data": {
+        "_data_file": "/home/areefjeevan/.pipegen/abdulwahab141978/5682b226-3a09-49f1-9998-ea7bcc204082/model_stage/7-yolo11s/visualize.data.json"
+      },
+      "warnings": [],
+      "artifacts": {},
+      "recorded_at": 1792431433.9134848
+    }
+  },
+  "constraint": {},
+  "choices": {}
+}

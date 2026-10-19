@@ -1,0 +1,15 @@
+{
+  "versions": [
+    {
+      "version": 1,
+      "file": "UserInfo_v1.json",
+      "archived_at": "2026-10-19T17:56:51",
+      "reason": "requirements reopened",
+      "dropped": [],
+      "project_path": "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring",
+      "model_paths": [
+        "/home/areefjeevan/.pipegen/areef67890srec/491bfc2a-a12b-492f-929c-65e4e205be1c/src2/RestrictedAreaMonitoring/model/yolo11s.onnx"
+      ]
+    }
+  ]
+}
